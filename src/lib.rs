@@ -4,6 +4,8 @@ extern crate lazy_static;
 #[macro_use]
 mod utils;
 mod router;
+mod store;
+mod blog;
 mod sn;
 
 use cfg_if::cfg_if;

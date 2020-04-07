@@ -1,5 +1,5 @@
 // Interface for Standard Notes (Actions)
-use crate::CONFIG;
+use crate::{CONFIG, blog};
 use crate::router::Router;
 use crate::utils::*;
 use serde::{Serialize, Serializer};
@@ -28,8 +28,17 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
     let origin = url.origin();
     let mut actions = vec![];
 
+    // Show different options depending on whether the post already exists
+    let post_exists = match params.get("item_uuid") {
+        Some(uuid) => {
+            let posts = blog::PostsList::load().await;
+            posts.has_post(&uuid)
+        },
+        None => false
+    };
+
     actions.push(Action {
-        label: "Publish".into(),
+        label: if post_exists { "Update".into() } else { "Publish".into() },
         url: format!("{}/post?secret={}", origin, CONFIG.secret.clone()),
         verb: Verb::Post,
         context: Context::Item,
