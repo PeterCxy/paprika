@@ -73,7 +73,3 @@ pub struct Config {
     // Plugin identifier used for Standard Notes
     pub plugin_identifier: String
 }
-
-pub fn get_config() -> Config {
-    serde_json::from_str(std::include_str!("../config.json")).unwrap()
-}

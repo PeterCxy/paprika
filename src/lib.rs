@@ -25,6 +25,10 @@ lazy_static! {
     static ref ROUTER: router::Router = {
         build_routes()
     };
+
+    pub static ref CONFIG: utils::Config = {
+        serde_json::from_str(std::include_str!("../config.json")).unwrap()
+    };
 }
 
 fn build_routes() -> router::Router {

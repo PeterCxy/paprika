@@ -1,6 +1,7 @@
 // Interface for Standard Notes (Actions)
+use crate::CONFIG;
 use crate::router::Router;
-use crate::utils::{self, Error, MyResult};
+use crate::utils::{Error, MyResult};
 use serde::{Serialize, Serializer};
 use std::vec::Vec;
 use web_sys::*;
@@ -10,27 +11,26 @@ pub fn build_routes(router: &mut Router) {
 }
 
 macro_rules! verify_secret {
-    ($url:expr, $params:ident, $config:ident) => {
-        let $config = utils::get_config();
+    ($url:expr, $params:ident) => {
         let $params = UrlSearchParams::new_with_str(&$url.search())
             .map_err(|_| Error::BadRequest("Failed to parse query string".into()))?;
         if !$params.has("secret") {
             return Err(Error::BadRequest("Secret needed".into()));
-        } else if $params.get("secret").unwrap() != $config.secret {
+        } else if $params.get("secret").unwrap() != crate::CONFIG.secret {
             return Err(Error::Unauthorized("Secret mismatch".into()));
         }
     };
 }
 
 async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
-    verify_secret!(url, params, config);
+    verify_secret!(url, params);
 
     let origin = url.origin();
     let mut actions = vec![];
 
     actions.push(Action {
         label: "Publish".into(),
-        url: format!("{}/post?secret={}", origin, config.secret.clone()),
+        url: format!("{}/post?secret={}", origin, CONFIG.secret.clone()),
         verb: Verb::Post,
         context: Context::Item,
         content_types: vec![ContentType::Note],
@@ -38,10 +38,10 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
     });
 
     let info = ActionsExtension {
-        identifier: config.plugin_identifier.clone(),
-        name: config.title.clone(),
-        description: format!("Standard Notes plugin for {}", config.title.clone()),
-        url: format!("{}/actions?secret={}", origin, config.secret.clone()),
+        identifier: CONFIG.plugin_identifier.clone(),
+        name: CONFIG.title.clone(),
+        description: format!("Standard Notes plugin for {}", CONFIG.title.clone()),
+        url: format!("{}/actions?secret={}", origin, CONFIG.secret.clone()),
         content_type: ContentType::Extension,
         supported_types: vec![ContentType::Note],
         actions
