@@ -1,5 +1,6 @@
 use cfg_if::cfg_if;
 use serde::Deserialize;
+use web_sys::Headers;
 
 cfg_if! {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -23,6 +24,33 @@ macro_rules! cors {
         $headers.set("Access-Control-Allow-Origin", "*").unwrap();
         $headers.set("Access-Control-Allow-Headers", "*").unwrap();
     };
+}
+
+// Adapted from <https://stackoverflow.com/questions/27582739/how-do-i-create-a-hashmap-literal>
+#[macro_export]
+macro_rules! headers(
+    { $($key:expr => $value:expr),+ } => {
+        {
+            let headers = ::web_sys::Headers::new().unwrap();
+            $(
+                headers.set($key, $value).unwrap();
+            )+
+            headers
+        }
+     };
+     () => { ::web_sys::Headers::new().unwrap() };
+);
+
+pub trait HeadersExt {
+    fn add_cors(self) -> Self;
+}
+
+impl HeadersExt for Headers {
+    fn add_cors(self) -> Self {
+        self.set("Access-Control-Allow-Origin", "*").unwrap();
+        self.set("Access-Control-Allow-Headers", "*").unwrap();
+        self
+    }
 }
 
 pub trait ResultExt<T, E> {

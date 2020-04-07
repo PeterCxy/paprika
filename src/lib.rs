@@ -59,11 +59,7 @@ pub async fn handle_request_rs(req: Request) -> Response {
         return Response::new_with_opt_str_and_init(
             None, ResponseInit::new()
                 .status(200)
-                .headers({
-                    let headers = Headers::new().unwrap();
-                    cors!(headers);
-                    headers
-                }.as_ref())
+                .headers(headers!().add_cors().as_ref())
         ).unwrap();
     }
 

@@ -60,12 +60,9 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
         Some(&serde_json::to_string(&info).internal_err()?),
         ResponseInit::new()
             .status(200)
-            .headers({
-                let headers = Headers::new().unwrap();
-                 headers.set("Content-Type", "application/json").unwrap();
-                cors!(headers);
-                headers
-            }.as_ref())
+            .headers(headers!{
+                "Content-Type" => "application/json"
+            }.add_cors().as_ref())
     ).internal_err()
 }
 
