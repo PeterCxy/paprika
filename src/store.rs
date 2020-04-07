@@ -14,8 +14,9 @@ extern "C" {
     fn kv_put_str(key: &str, value: &str) -> Promise;
 }
 
+// Returns empty string ("") if the key is not found
 pub async fn get_str(key: &str) -> MyResult<String> {
-    Ok(JsFuture::from(kv_get(key)).await.internal_err()?.as_string().unwrap())
+    Ok(JsFuture::from(kv_get(key)).await.internal_err()?.as_string().unwrap_or("".into()))
 }
 
 pub async fn get_obj<T: DeserializeOwned>(key: &str) -> MyResult<T> {
