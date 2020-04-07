@@ -25,12 +25,15 @@ macro_rules! cors {
     };
 }
 
-// Ignore any error and return InternalError for them all
-// Used in place of ugly `.unwrap()`.
-#[macro_export]
-macro_rules! internal_err {
-    ($result:expr) => {
-        $result.map_err(|_| crate::utils::Error::InternalError())
+pub trait ResultExt<T, E> {
+    // Ignore any error and return InternalError for them all
+    // Used in place of ugly `.unwrap()`.
+    fn internal_err(self) -> Result<T, Error>;
+}
+
+impl <T, E> ResultExt<T, E> for Result<T, E> {
+    fn internal_err(self) -> Result<T, Error> {
+        self.map_err(|_| crate::utils::Error::InternalError())
     }
 }
 

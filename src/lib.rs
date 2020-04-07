@@ -7,7 +7,7 @@ mod router;
 mod sn;
 
 use cfg_if::cfg_if;
-use utils::{Error, MyResult};
+use utils::*;
 use wasm_bindgen::prelude::*;
 use web_sys::*;
 
@@ -43,12 +43,10 @@ async fn default_route(_req: Request, _url: Url) -> MyResult<Response> {
 }
 
 async fn hello_world(_req: Request, _url: Url) -> MyResult<Response> {
-    internal_err!(
-        Response::new_with_opt_str_and_init(
-            Some("Hello, world from Rust"),
-            ResponseInit::new().status(200)
-        )
-    )
+    Response::new_with_opt_str_and_init(
+        Some("Hello, world from Rust"),
+        ResponseInit::new().status(200)
+    ).internal_err()
 }
 
 #[wasm_bindgen]

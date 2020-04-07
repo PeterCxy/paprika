@@ -1,7 +1,7 @@
 // Interface for Standard Notes (Actions)
 use crate::CONFIG;
 use crate::router::Router;
-use crate::utils::{Error, MyResult};
+use crate::utils::*;
 use serde::{Serialize, Serializer};
 use std::vec::Vec;
 use web_sys::*;
@@ -47,21 +47,17 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
         actions
     };
 
-    internal_err!(
-        Response::new_with_opt_str_and_init(
-            Some(&internal_err!(
-                serde_json::to_string(&info)
-            )?),
-            ResponseInit::new()
-                .status(200)
-                .headers({
-                    let headers = Headers::new().unwrap();
-                    headers.set("Content-Type", "application/json").unwrap();
-                    cors!(headers);
-                    headers
-                }.as_ref())
-        )
-    )
+    Response::new_with_opt_str_and_init(
+        Some(&serde_json::to_string(&info).internal_err()?),
+        ResponseInit::new()
+            .status(200)
+            .headers({
+                let headers = Headers::new().unwrap();
+                 headers.set("Content-Type", "application/json").unwrap();
+                cors!(headers);
+                headers
+            }.as_ref())
+    ).internal_err()
 }
 
 pub enum Verb {
