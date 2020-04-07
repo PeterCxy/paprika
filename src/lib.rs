@@ -43,10 +43,12 @@ async fn default_route(_req: Request, _url: Url) -> MyResult<Response> {
 }
 
 async fn hello_world(_req: Request, _url: Url) -> MyResult<Response> {
-    Ok(Response::new_with_opt_str_and_init(
-        Some("Hello, world from Rust"),
-        ResponseInit::new().status(200)
-    ).unwrap())
+    internal_err!(
+        Response::new_with_opt_str_and_init(
+            Some("Hello, world from Rust"),
+            ResponseInit::new().status(200)
+        )
+    )
 }
 
 #[wasm_bindgen]

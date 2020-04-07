@@ -47,18 +47,21 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
         actions
     };
 
-    Ok(Response::new_with_opt_str_and_init(
-        Some(&serde_json::to_string(&info)
-            .map_err(|_| Error::InternalError())?),
-        ResponseInit::new()
-            .status(200)
-            .headers({
-                let headers = Headers::new().unwrap();
-                headers.set("Content-Type", "application/json").unwrap();
-                cors!(headers);
-                headers
-            }.as_ref())
-    ).unwrap())
+    internal_err!(
+        Response::new_with_opt_str_and_init(
+            Some(&internal_err!(
+                serde_json::to_string(&info)
+            )?),
+            ResponseInit::new()
+                .status(200)
+                .headers({
+                    let headers = Headers::new().unwrap();
+                    headers.set("Content-Type", "application/json").unwrap();
+                    cors!(headers);
+                    headers
+                }.as_ref())
+        )
+    )
 }
 
 pub enum Verb {

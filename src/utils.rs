@@ -25,6 +25,15 @@ macro_rules! cors {
     };
 }
 
+// Ignore any error and return InternalError for them all
+// Used in place of ugly `.unwrap()`.
+#[macro_export]
+macro_rules! internal_err {
+    ($result:expr) => {
+        $result.map_err(|_| crate::utils::Error::InternalError())
+    }
+}
+
 pub type MyResult<T> = Result<T, Error>;
 
 pub enum Error {
