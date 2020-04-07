@@ -17,16 +17,30 @@ cfg_if! {
     }
 }
 
+#[macro_export]
+macro_rules! cors {
+    ($headers:ident) => {
+        $headers.set("Access-Control-Allow-Origin", "*").unwrap();
+        $headers.set("Access-Control-Allow-Headers", "*").unwrap();
+    };
+}
+
 pub type MyResult<T> = Result<T, Error>;
 
 pub enum Error {
-    NotFound(String)
+    NotFound(String),
+    BadRequest(String),
+    Unauthorized(String),
+    InternalError()
 }
 
 impl Error {
     pub fn status_code(&self) -> u16 {
         match self {
-            Error::NotFound(_) => 404
+            Error::NotFound(_) => 404,
+            Error::BadRequest(_) => 400,
+            Error::Unauthorized(_) => 401,
+            Error::InternalError() => 500
         }
     }
 }
@@ -36,6 +50,15 @@ impl Into<String> for Error {
         match self {
             Error::NotFound(reason) => {
                 format!("Not Found, Reason: {}", reason)
+            },
+            Error::BadRequest(reason) => {
+                format!("Bad Request, Reason: {}", reason)
+            },
+            Error::Unauthorized(reason) => {
+                format!("Unauthorized, Reason: {}", reason)
+            },
+            Error::InternalError() => {
+                format!("Internal Errror")
             }
         }
     }
@@ -44,7 +67,11 @@ impl Into<String> for Error {
 #[derive(Deserialize)]
 pub struct Config {
     // The secret value used to authenticate the Standard Notes plugin link
-    secret: String
+    pub secret: String,
+    // Title of the blog
+    pub title: String,
+    // Plugin identifier used for Standard Notes
+    pub plugin_identifier: String
 }
 
 pub fn get_config() -> Config {

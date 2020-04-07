@@ -1,8 +1,10 @@
 #[macro_use]
 extern crate lazy_static;
 
+#[macro_use]
 mod utils;
 mod router;
+mod sn;
 
 use cfg_if::cfg_if;
 use utils::{Error, MyResult};
@@ -28,6 +30,7 @@ lazy_static! {
 fn build_routes() -> router::Router {
     let mut router = router::Router::new(&default_route);
     router.add_route("/hello", &hello_world);
+    sn::build_routes(&mut router);
     return router;
 }
 
@@ -45,6 +48,19 @@ async fn hello_world(_req: Request, _url: Url) -> MyResult<Response> {
 #[wasm_bindgen]
 pub async fn handle_request_rs(req: Request) -> Response {
     let url = Url::new(&req.url()).unwrap();
+
+    if req.method() == "OPTIONS" {
+        return Response::new_with_opt_str_and_init(
+            None, ResponseInit::new()
+                .status(200)
+                .headers({
+                    let headers = Headers::new().unwrap();
+                    cors!(headers);
+                    headers
+                }.as_ref())
+        ).unwrap();
+    }
+
     let result = ROUTER.execute(req, url).await;
 
     match result {
