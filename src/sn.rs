@@ -75,11 +75,10 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
 
 #[derive(Deserialize)]
 struct CustomMetadata {
-    // If unlist is set to TRUE upon first publication,
-    // the post won't be listed publicly on the blog.
-    // However, this has no effect if set to TRUE after first publication.
-    // (setting to FALSE after first publication MAY work)
-    // You will have to first delete the blog before changing this value.
+    // If unlist is set to TRUE,
+    // the post won't be listed publicly on the blog,
+    // and if the post were published, it will
+    // be removed from the public list
     unlist: Option<bool>,
     url: Option<String>,
     timestamp: Option<String> // Should be something `js_sys::Date::parse` could handle
@@ -203,8 +202,11 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     // As you may have seen by now, the process is far from atomic
     // This is fine because we don't expect users to update posts from
     // multiple endpoints simultaneously all the time
+    let list = blog::PostsList::load().await;
     if !metadata.unlist {
-        blog::PostsList::load().await.add_post(&post.uuid).await?;
+        list.add_post(&post.uuid).await?;
+    } else {
+        list.remove_post(&post.uuid).await?;
     }
     post.write_to_kv().await?;
 

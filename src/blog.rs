@@ -42,8 +42,16 @@ impl PostsList {
         if self.has_post(uuid) {
             return Ok(());
         }
-        
+
         self.0.insert(0, uuid.into());
+        store::put_obj_pretty("posts_list", self.0).await
+    }
+
+    // Remove a post from published list
+    // may be used when deleting / unpublishing a post
+    // Does nothing if uuid not found in list
+    pub async fn remove_post(mut self, uuid: &str) -> MyResult<()> {
+        self.0.remove_item(&uuid);
         store::put_obj_pretty("posts_list", self.0).await
     }
 }
