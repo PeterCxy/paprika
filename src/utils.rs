@@ -42,9 +42,9 @@ macro_rules! headers(
 );
 
 // Remove all non-ascii characters from string
-pub fn filter_non_ascii(s: &str) -> String {
+pub fn filter_non_ascii_alphanumeric(s: &str) -> String {
     s.chars().into_iter()
-        .filter(|c| c.is_ascii())
+        .filter(|c| c.is_ascii_alphanumeric() || c.is_whitespace())
         .collect()
 }
 
@@ -53,7 +53,7 @@ pub fn filter_non_ascii(s: &str) -> String {
 // articles have the same URL by having the same title when
 // all non-ASCII characters are removed
 pub fn title_to_url(uuid: &str, title: &str) -> String {
-    let title_part = filter_non_ascii(title)
+    let title_part = filter_non_ascii_alphanumeric(title)
         .split_whitespace()
         .collect::<Vec<&str>>()
         .join("-")
