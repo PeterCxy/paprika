@@ -80,6 +80,9 @@ struct CustomMetadata {
     // and if the post were published, it will
     // be removed from the public list
     unlist: Option<bool>,
+    // An alias because I always want to use `unlisted` for some reason
+    // `unlist` takes precedence over this alias
+    unlisted: Option<bool>,
     url: Option<String>,
     timestamp: Option<String> // Should be something `js_sys::Date::parse` could handle
 }
@@ -134,6 +137,8 @@ fn build_metadata(custom: Option<CustomMetadata>, uuid: &str, title: &str) -> Me
     if let Some(custom) = custom {
         if let Some(unlist) = custom.unlist {
             ret.unlist = unlist;
+        } else if let Some(unlisted) = custom.unlisted {
+            ret.unlist = unlisted;
         }
 
         if let Some(url) = custom.url {
