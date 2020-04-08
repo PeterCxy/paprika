@@ -2,12 +2,15 @@
 use crate::{CONFIG, blog};
 use crate::router::Router;
 use crate::utils::*;
-use serde::{Serialize, Serializer};
+use js_sys::Date;
+use serde::{Deserialize, Serialize, Serializer};
 use std::vec::Vec;
+use wasm_bindgen_futures::JsFuture;
 use web_sys::*;
 
 pub fn build_routes(router: &mut Router) {
     router.add_route("/actions", &get_actions);
+    router.add_route("/post", &create_or_update_post);
 }
 
 macro_rules! verify_secret {
@@ -29,13 +32,16 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
     let mut actions = vec![];
 
     // Show different options depending on whether the post already exists
-    let post_exists = match params.get("item_uuid") {
-        Some(uuid) => {
-            let posts = blog::PostsList::load().await;
-            posts.has_post(&uuid)
+    // Use Post here because PostsList is larger to read into memory
+    // also slower to check one-by-one
+    let post = match params.get("item_uuid") {
+        Some(uuid) => match blog::Post::find_by_uuid(&uuid).await {
+            Ok(post) => Some(post),
+            Err(_) => None
         },
-        None => false
+        None => None
     };
+    let post_exists = post.is_some();
 
     actions.push(Action {
         label: if post_exists { "Update".into() } else { "Publish".into() },
@@ -63,6 +69,62 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
             .headers(headers!{
                 "Content-Type" => "application/json"
             }.add_cors().as_ref())
+    ).internal_err()
+}
+
+async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
+    verify_secret!(url, params);
+    if req.method() != "POST" {
+        return Err(Error::BadRequest("Unsupported method".into()));
+    }
+
+    // Load the information sent as POST body
+    let data: ActionsPostData = serde_json::from_str(
+        &JsFuture::from(req.text().internal_err()?)
+            .await.internal_err()?
+            .as_string().ok_or(Error::BadRequest("Unable to parse POST body".into()))?
+        ).internal_err()?;
+    if data.items.len() == 0 {
+        return Err(Error::BadRequest("At least one item must be supplied".into()));
+    }
+
+    // TODO: we should support customizing timestamp and URL from text
+    //       and if there are option detected in text, it always overrides
+    //       whatever was stored before
+    //       If the URL is changed via this way, we should make sure the old
+    //       URL actually 301's to the new URL
+    let uuid = data.items[0].uuid.clone();
+    let text = data.items[0].content.text.clone();
+    let title = data.items[0].content.title.clone();
+    let post = match blog::Post::find_by_uuid(&uuid).await {
+        Ok(mut post) => {
+            post.content = text;
+            post.title = title;
+            post
+        },
+        Err(_) => {
+            blog::Post {
+                url: title_to_url(&uuid, &title),
+                uuid: uuid,
+                title: title,
+                content: text,
+                timestamp: Date::now() as u64 / 1000 // Seconds
+            }
+        }
+    };
+
+    // Write the new post to storage
+    // As you may have seen by now, the process is far from atomic
+    // This is fine because we don't expect users to update posts from
+    // multiple endpoints simultaneously all the time
+    blog::PostsList::load().await.add_post(&post.uuid).await?;
+    post.write_to_kv().await?;
+
+    Response::new_with_opt_str_and_init(
+        None,
+        ResponseInit::new()
+            .status(200)
+            .headers(headers!().add_cors().as_ref())
     ).internal_err()
 }
 
@@ -149,4 +211,22 @@ pub struct ActionsExtension {
     content_type: ContentType,
     supported_types: Vec<ContentType>,
     actions: Vec<Action>
+}
+
+// Many fields are omitted here since we don't use them for now
+#[derive(Deserialize)]
+pub struct ActionsPostItem {
+    uuid: String,
+    content: ActionsPostContent
+}
+
+#[derive(Deserialize)]
+pub struct ActionsPostContent {
+    title: String,
+    text: String
+}
+
+#[derive(Deserialize)]
+pub struct ActionsPostData {
+    items: Vec<ActionsPostItem>
 }
