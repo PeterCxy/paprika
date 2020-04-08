@@ -72,6 +72,72 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
     ).internal_err()
 }
 
+#[derive(Deserialize)]
+struct CustomMetadata {
+    url: Option<String>,
+    timestamp: Option<String> // Should be something `js_sys::Date::parse` could handle
+}
+
+struct Metadata {
+    url: String,
+    has_custom_url: bool,
+    timestamp: u64, // Seconds
+    has_custom_timestamp: bool
+}
+
+// You can customize metadata by adding something like
+// 
+// ```json
+// {
+//     "url": "xxx-xxx-xxx",
+//     "timestamp": "YYYY-mm-dd"
+// }
+// ```
+// 
+// to the beginning of your article
+// Normally when you update a post, the timestamp and URL will not be updated,
+// but when you have custom metadata, they will always be updated.
+// When the URL is updated, the old URL will automatically 301 to the new one
+fn parse_custom_metadata_from_content(text: String) -> (Option<CustomMetadata>, String) {
+    if !text.starts_with("```json\n") {
+        (None, text)
+    } else {
+        match text.find("```\n\n") {
+            None => (None, text),
+            Some(pos) => {
+                let json = serde_json::from_str(&text[8..pos]).ok();
+                return (json, text[pos + 5..].to_owned())
+            }
+        }
+    }
+}
+
+// Generate metadata from uuid and title
+// Fill in default value if custom value not present
+fn build_metadata(custom: Option<CustomMetadata>, uuid: &str, title: &str) -> Metadata {
+    // Default values
+    let mut ret = Metadata {
+        url: title_to_url(&uuid, &title),
+        has_custom_url: false,
+        timestamp: Date::now() as u64 / 1000, // Seconds
+        has_custom_timestamp: false
+    };
+
+    if let Some(custom) = custom {
+        if let Some(url) = custom.url {
+            ret.url = url;
+            ret.has_custom_url = true;
+        }
+
+        if let Some(date) = custom.timestamp {
+            ret.timestamp = Date::parse(&date) as u64 / 1000; // Seconds
+            ret.has_custom_timestamp = true;
+        }
+    }
+    
+    ret
+}
+
 async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     verify_secret!(url, params);
     if req.method() != "POST" {
@@ -88,27 +154,34 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
         return Err(Error::BadRequest("At least one item must be supplied".into()));
     }
 
-    // TODO: we should support customizing timestamp and URL from text
-    //       and if there are option detected in text, it always overrides
-    //       whatever was stored before
-    //       If the URL is changed via this way, we should make sure the old
-    //       URL actually 301's to the new URL
     let uuid = data.items[0].uuid.clone();
     let text = data.items[0].content.text.clone();
     let title = data.items[0].content.title.clone();
+    let (custom_metadata, text) = parse_custom_metadata_from_content(text);
+    let metadata = build_metadata(custom_metadata, &uuid, &title);
     let post = match blog::Post::find_by_uuid(&uuid).await {
         Ok(mut post) => {
             post.content = text;
             post.title = title;
+
+            // Update metadata if custom ones are present
+            if metadata.has_custom_url {
+                post.url = metadata.url;
+            }
+
+            if metadata.has_custom_timestamp {
+                post.timestamp = metadata.timestamp;
+            }
+
             post
         },
         Err(_) => {
             blog::Post {
-                url: title_to_url(&uuid, &title),
+                url: metadata.url,
                 uuid: uuid,
                 title: title,
                 content: text,
-                timestamp: Date::now() as u64 / 1000 // Seconds
+                timestamp: metadata.timestamp
             }
         }
     };
