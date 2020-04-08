@@ -74,11 +74,18 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
 
 #[derive(Deserialize)]
 struct CustomMetadata {
+    // If unlist is set to TRUE upon first publication,
+    // the post won't be listed publicly on the blog.
+    // However, this has no effect if set to TRUE after first publication.
+    // (setting to FALSE after first publication MAY work)
+    // You will have to first delete the blog before changing this value.
+    unlist: Option<bool>,
     url: Option<String>,
     timestamp: Option<String> // Should be something `js_sys::Date::parse` could handle
 }
 
 struct Metadata {
+    unlist: bool,
     url: String,
     has_custom_url: bool,
     timestamp: u64, // Seconds
@@ -117,6 +124,7 @@ fn parse_custom_metadata_from_content(text: String) -> (Option<CustomMetadata>, 
 fn build_metadata(custom: Option<CustomMetadata>, uuid: &str, title: &str) -> Metadata {
     // Default values
     let mut ret = Metadata {
+        unlist: false,
         url: title_to_url(&uuid, &title),
         has_custom_url: false,
         timestamp: Date::now() as u64 / 1000, // Seconds
@@ -124,6 +132,10 @@ fn build_metadata(custom: Option<CustomMetadata>, uuid: &str, title: &str) -> Me
     };
 
     if let Some(custom) = custom {
+        if let Some(unlist) = custom.unlist {
+            ret.unlist = unlist;
+        }
+
         if let Some(url) = custom.url {
             ret.url = url;
             ret.has_custom_url = true;
@@ -190,7 +202,9 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     // As you may have seen by now, the process is far from atomic
     // This is fine because we don't expect users to update posts from
     // multiple endpoints simultaneously all the time
-    blog::PostsList::load().await.add_post(&post.uuid).await?;
+    if !metadata.unlist {
+        blog::PostsList::load().await.add_post(&post.uuid).await?;
+    }
     post.write_to_kv().await?;
 
     Response::new_with_opt_str_and_init(
