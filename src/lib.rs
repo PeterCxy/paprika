@@ -81,7 +81,8 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
                     ResponseInit::new()
                         .status(200)
                         .headers(headers!{
-                            "Content-Type" => "text/html"
+                            "Content-Type" => "text/html",
+                            "Cache-Control" => "no-cache"
                         }.as_ref())
                 ).internal_err();
             }

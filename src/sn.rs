@@ -79,7 +79,8 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
         ResponseInit::new()
             .status(200)
             .headers(headers!{
-                "Content-Type" => "application/json"
+                "Content-Type" => "application/json",
+                "Cache-Control" => "no-cache"
             }.add_cors().as_ref())
     ).internal_err()
 }
