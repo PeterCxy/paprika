@@ -34,6 +34,7 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
     // Show different options depending on whether the post already exists
     // Use Post here because PostsList is larger to read into memory
     // also slower to check one-by-one
+    // (also, because it may be a hidden post that does not live in PostsList)
     let post = match params.get("item_uuid") {
         Some(uuid) => match blog::Post::find_by_uuid(&uuid).await {
             Ok(post) => Some(post),

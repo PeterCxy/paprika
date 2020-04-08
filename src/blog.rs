@@ -84,6 +84,8 @@ impl Post {
     // post is not found in PostsList, it must not be found
     // here either; if a post is found in PostsList, then
     // this method should not return any error.
+    // (except for hidden posts, in which case they won't be
+    //  present in PostsList)
     pub async fn find_by_uuid(uuid: &str) -> MyResult<Post> {
         store::get_obj(&Self::uuid_to_post_key(uuid)).await
     }
