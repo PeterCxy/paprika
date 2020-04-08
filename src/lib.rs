@@ -42,7 +42,52 @@ fn build_routes() -> router::Router {
     return router;
 }
 
-async fn default_route(_req: Request, _url: Url) -> MyResult<Response> {
+async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
+    // We assume that anything that falls into this catch-all handler
+    // would be either posts or 404
+    // If the path doesn't end with `/`, normalize it first
+    let path = url.pathname();
+    if !path.ends_with("/") {
+        return Response::new_with_opt_str_and_init(
+            None,
+            ResponseInit::new()
+                .status(302)
+                .headers(headers!{
+                    "Location" => &format!("{}{}/", url.origin(), path)
+                }.as_ref())
+        ).internal_err();
+    }
+
+    // TODO: handle home page and pagination on home page
+    // Now we can be sure the path ends with `/`
+    // (and of course it starts with `/` as per standard)
+    if path.len() > 1 {
+        let path = &path[1..path.len() - 1];
+        if let Ok(post) = blog::Post::find_by_url(path).await {
+            if post.url != path {
+                // Redirect to the latest path of the post
+                return Response::new_with_opt_str_and_init(
+                    None,
+                    ResponseInit::new()
+                        .status(301)
+                        .headers(headers!{
+                            "Location" => &format!("{}/{}/", url.origin(), post.url)
+                        }.as_ref())
+                ).internal_err();
+            } else {
+                // TODO: Actually render the page...
+                return Response::new_with_opt_str_and_init(
+                    Some(&post.content),
+                    ResponseInit::new()
+                        .status(200)
+                        .headers(headers!{
+                            "Content-Type" => "text/html"
+                        }.as_ref())
+                ).internal_err();
+            }
+        }
+    }
+
     Err(Error::NotFound("This page is not available".into()))
 }
 

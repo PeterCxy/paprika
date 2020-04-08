@@ -98,6 +98,11 @@ impl Post {
         store::get_obj(&Self::uuid_to_post_key(uuid)).await
     }
 
+    pub async fn find_by_url(url: &str) -> MyResult<Post> {
+        let uuid = store::get_str(&Self::url_to_mapping_key(url)).await?;
+        Self::find_by_uuid(&uuid).await
+    }
+
     // Write the Post to KV storage; this can be a new post or
     // update to an existing post; either way, the CALLER is
     // responsible for making sure PostsList is updated with the

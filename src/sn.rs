@@ -53,6 +53,17 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
         access_type: Some(AccessType::Decrypted)
     });
 
+    if post_exists {
+        actions.push(Action {
+            label: "Open Post".into(),
+            url: format!("{}/{}/", origin, post.unwrap().url),
+            verb: Verb::Show,
+            context: Context::Item,
+            content_types: vec![ContentType::Note],
+            access_type: None
+        })
+    }
+
     let info = ActionsExtension {
         identifier: CONFIG.plugin_identifier.clone(),
         name: CONFIG.title.clone(),
