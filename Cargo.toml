@@ -24,6 +24,8 @@ web-sys = { version = "0.3", features = [
     "Crypto",
     "Headers",
     "Request",
+    "RequestInit",
+    "RequestRedirect",
     "Response",
     "ResponseInit",
     "SubtleCrypto",

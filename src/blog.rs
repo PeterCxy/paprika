@@ -120,7 +120,10 @@ impl Post {
 // library updates. Updaing this value invalidates all
 // existing cache and they will be recompiled when someone
 // visits.
-const CACHE_VERSION: &'static str = "0001";
+const CACHE_VERSION: &'static str = "0003";
+
+// The prefix path used for caching remote images
+pub const IMG_CACHE_PREFIX: &'static str = "/imgcache/";
 
 // Cached version of rendered blog content HTMLs
 // compiled from Markdown
@@ -151,6 +154,17 @@ impl PostContentCache {
         format!("content_cache_{}", uuid)
     }
 
+    fn url_to_cache_whitelist_key(url: &str) -> String {
+        format!("cache_whitelist_{}", url)
+    }
+
+    pub async fn is_external_url_whitelisted_for_cache(url: &str) -> bool {
+        match store::get_str(&Self::url_to_cache_whitelist_key(url)).await {
+            Ok(s) => s == "Y",
+            Err(_) => false
+        }
+    }
+
     async fn find_by_uuid(uuid: &str) -> MyResult<PostContentCache> {
         store::get_obj(&Self::uuid_to_cache_key(uuid)).await
     }
@@ -172,17 +186,44 @@ impl PostContentCache {
         Some(cache)
     }
 
+    async fn transform_tag<'a>(tag: &mut Tag<'a>) {
+        match tag {
+            Tag::Image(_, url, _) => {
+                // Convert all external image to our cached URL
+                // to protect users and speed up page loading
+                let url_encoded: String = js_sys::encode_uri_component(url).into();
+                // Also write this URL to whitelist
+                // we don't care about if this write succeeds or not,
+                // because even if it breaks we still can recover by a simple refresh
+                let _ = store::put_str(&Self::url_to_cache_whitelist_key(url), "Y").await;
+                // Now we can overwrite the tag URL
+                *url = format!("{}{}", IMG_CACHE_PREFIX, url_encoded).into();
+            },
+            _ => ()
+        }
+    }
+
     // Only renders the content and spits out a cache object
     // can be used to display the page or to write to cache
     // Despite the signature, this function BLOCKS
     // async only comes from digesting via SubtleCrypto
     pub async fn render(post: &Post) -> PostContentCache {
-        // TODO: enable some options; pre-process posts to enable
-        //       inline image caching; also generate a summary (?)
+        // TODO: enable some options; also generate a summary (?)
         //       from first few paragraphs
-        let parser = Parser::new(&post.content);
+        // We have to first collect all events into a vector
+        // because we need to asynchronously transform the events
+        // which could not be done through mapping on iterators
+        let mut parser: Vec<Event> = Parser::new(&post.content).collect();
+        for ev in parser.iter_mut() {
+            match ev {
+                Event::Start(tag) | Event::End(tag) => {
+                    Self::transform_tag(tag).await;
+                }
+                _ => ()
+            };
+        }
         let mut html_output = String::new();
-        html::push_html(&mut html_output, parser);
+        html::push_html(&mut html_output, parser.into_iter());
         PostContentCache {
             uuid: post.uuid.clone(),
             version: CACHE_VERSION.to_owned(),
