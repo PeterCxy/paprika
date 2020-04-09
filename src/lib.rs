@@ -47,6 +47,10 @@ fn build_routes() -> router::Router {
 
 #[wasm_bindgen]
 extern "C" {
+    // This binds to the fetch function in global scope
+    // In cloudflare workers, there's no Window object
+    // and unfortunately the bionding in web_sys depends
+    // on Window being present.
     fn fetch(req: &Request) -> Promise;
 }
 
