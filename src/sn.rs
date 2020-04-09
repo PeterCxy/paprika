@@ -225,6 +225,9 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     } else {
         list.remove_post(&post.uuid).await?;
     }
+    // Also pre-render the post
+    blog::PostContentCache::find_or_render(&post).await;
+    // Finally, save the post
     post.write_to_kv().await?;
 
     Response::new_with_opt_str_and_init(

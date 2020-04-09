@@ -1,6 +1,9 @@
 use cfg_if::cfg_if;
 use serde::Deserialize;
-use web_sys::Headers;
+use js_sys::*;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen_futures::*;
+use web_sys::*;
 
 cfg_if! {
     // When the `console_error_panic_hook` feature is enabled, we can call the
@@ -59,6 +62,20 @@ pub fn title_to_url(uuid: &str, title: &str) -> String {
         .join("-")
         .to_lowercase();
     format!("{}/{}", &uuid[0..4], title_part)
+}
+
+#[wasm_bindgen]
+extern "C" {
+    static crypto: Crypto;
+}
+
+// SHA-1 digest (hexed) via SubtleCrypto
+pub async fn sha1(s: &str) -> String {
+    let mut bytes: Vec<u8> = s.bytes().collect();
+    let promise = crypto.subtle().digest_with_str_and_u8_array("SHA-1", &mut bytes).unwrap();
+    let buffer: ArrayBuffer = JsFuture::from(promise).await.unwrap().into();
+    let digest_arr = Uint8Array::new(&buffer).to_vec();
+    hex::encode(digest_arr)
 }
 
 pub trait HeadersExt {

@@ -77,7 +77,7 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
             } else {
                 // TODO: Actually render the page...
                 return Response::new_with_opt_str_and_init(
-                    Some(&post.content),
+                    Some(&blog::PostContentCache::find_or_render(&post).await.content),
                     ResponseInit::new()
                         .status(200)
                         .headers(headers!{

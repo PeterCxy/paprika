@@ -6,6 +6,7 @@
 // unnecessary from KV.
 use crate::store;
 use crate::utils::*;
+use pulldown_cmark::*;
 use serde::{Serialize, Deserialize};
 use std::vec::Vec;
 
@@ -111,5 +112,90 @@ impl Post {
     pub async fn write_to_kv(self) -> MyResult<()> {
         Self::create_url_mapping(&self.url, &self.uuid).await?;
         store::put_obj(&Self::uuid_to_post_key(&self.uuid), self).await
+    }
+}
+
+const CACHE_VERSION: &'static str = "0001";
+
+// Cached version of rendered blog content HTMLs
+// compiled from Markdown
+#[derive(Serialize, Deserialize)]
+pub struct PostContentCache {
+    // UUID of the original post
+    uuid: String,
+    // If version != CACHE_VERSION, the cache is invalidated
+    version: String,
+    // Digest of the original content
+    orig_digest: String,
+    // Compiled content in HTML
+    pub content: String
+}
+
+impl PostContentCache {
+    fn uuid_to_cache_key(uuid: &str) -> String {
+        format!("content_cache_{}", uuid)
+    }
+
+    async fn find_by_uuid(uuid: &str) -> MyResult<PostContentCache> {
+        store::get_obj(&Self::uuid_to_cache_key(uuid)).await
+    }
+
+    pub async fn find_by_post(post: &Post) -> Option<PostContentCache> {
+        let cache = match Self::find_by_uuid(&post.uuid).await {
+            Ok(cache) => cache,
+            Err(_) => return None
+        };
+
+        if cache.version != CACHE_VERSION {
+            return None;
+        }
+
+        if cache.orig_digest != crate::utils::sha1(&post.content).await {
+            return None;
+        }
+
+        Some(cache)
+    }
+
+    // Only renders the content and spits out a cache object
+    // can be used to display the page or to write to cache
+    // Despite the signature, this function BLOCKS
+    // async only comes from digesting via SubtleCrypto
+    pub async fn render(post: &Post) -> PostContentCache {
+        // TODO: enable some options; pre-process posts to enable
+        //       inline image caching; also generate a summary (?)
+        //       from first few paragraphs
+        let parser = Parser::new(&post.content);
+        let mut html_output = String::new();
+        html::push_html(&mut html_output, parser);
+        PostContentCache {
+            uuid: post.uuid.clone(),
+            version: CACHE_VERSION.to_owned(),
+            orig_digest: crate::utils::sha1(&post.content).await,
+            content: html_output
+        }
+    }
+
+    // Tries to find the rendered content cache of post
+    // if a valid cache cannot be found, this method
+    // will render the content, write that into cache
+    // and return this newly-rendered one
+    // This will block if it tries to render; if that's a
+    // concern, use find_by_post
+    pub async fn find_or_render(post: &Post) -> PostContentCache {
+        match Self::find_by_post(post).await {
+            Some(cache) => cache,
+            None => {
+                let ret = Self::render(post).await;
+                // Ignore save error since if save failed, it can be regenerated anyway
+                let _ = ret.save().await;
+                ret
+            }
+        }
+    }
+
+    // Save the current cache object to KV
+    pub async fn save(&self) -> MyResult<()> {
+        store::put_obj(&Self::uuid_to_cache_key(&self.uuid), self).await
     }
 }
