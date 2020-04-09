@@ -1,0 +1,23 @@
+{
+  "name": "paprika",
+  "version": "0.1.0",
+  "description": "A simple blog integrated with Standard Notes and running on Cloudflare Workers",
+  "main": "worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PeterCxy/paprika.git"
+  },
+  "author": "PeterCxy",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/PeterCxy/paprika/issues"
+  },
+  "homepage": "https://github.com/PeterCxy/paprika#readme",
+  "devDependencies": {
+    "@wasm-tool/wasm-pack-plugin": "^1.2.0",
+    "webpack": "^4.42.1"
+  }
+}

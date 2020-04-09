@@ -1,6 +1,3 @@
-const { handle_request_rs } = wasm_bindgen;
-var gen = false;
-
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
@@ -10,9 +7,6 @@ addEventListener('fetch', event => {
  * @param {Request} request
  */
 async function handleRequest(request) {
-  if (!gen) {
-    await wasm_bindgen(wasm);
-    gen = true;
-  }
-  return await handle_request_rs(request);
+  const rust = await import("./pkg/index");
+  return await rust.handle_request_rs(request);
 }

@@ -4,6 +4,8 @@ Cargo.lock
 bin/
 pkg/
 wasm-pack.log
-worker/generated/
+worker/
 config.json
 wrangler.toml
+node_modules/
+dist/
