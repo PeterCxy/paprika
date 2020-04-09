@@ -54,6 +54,12 @@ extern "C" {
     fn fetch(req: &Request) -> Promise;
 }
 
+macro_rules! get_header {
+    ($headers:expr, $name:expr) => {
+        $headers.get($name).internal_err()?.ok_or(Error::InternalError())?
+    };
+}
+
 // A caching proxy for images inserted into articles
 // to protect user's privacy and accelerate page load
 async fn proxy_remote_image(req: Request, url: Url) -> MyResult<Response> {
@@ -74,7 +80,17 @@ async fn proxy_remote_image(req: Request, url: Url) -> MyResult<Response> {
         RequestInit::new()
             .method("GET")
             .redirect(RequestRedirect::Follow)).internal_err()?;
-    Ok(JsFuture::from(fetch(&new_req)).await.internal_err()?.into())
+    let remote_resp: Response = JsFuture::from(fetch(&new_req)).await.internal_err()?.into();
+    let remote_headers = remote_resp.headers();
+
+    Response::new_with_opt_readable_stream_and_init(
+        remote_resp.body().as_ref(),
+        ResponseInit::new()
+            .status(remote_resp.status())
+            .headers(headers!{
+                "Content-Type" => &get_header!(remote_headers, "content-type")
+            }.as_ref())
+    ).internal_err()
 }
 
 async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
