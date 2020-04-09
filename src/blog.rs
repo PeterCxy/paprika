@@ -124,6 +124,16 @@ const CACHE_VERSION: &'static str = "0001";
 
 // Cached version of rendered blog content HTMLs
 // compiled from Markdown
+// This is needed because 
+// (1) we have to extract some information from
+//     the Markdown source code before anyone
+//     visits, e.g. pictures it refers to (
+//     for whitelisting the cache URL)
+// (2) Markdown parsing is slower than filling in
+//     HTML templates of the entire page. If these
+//     Markdown compilation results are cached,
+//     page generation can be very fast while still
+//     keeping some dynamic features available to us
 #[derive(Serialize, Deserialize)]
 pub struct PostContentCache {
     // UUID of the original post
