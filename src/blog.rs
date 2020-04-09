@@ -115,6 +115,11 @@ impl Post {
     }
 }
 
+// This should be bumped each time the parsing / compiling
+// logic of Markdown changes, and each time the Markdown
+// library updates. Updaing this value invalidates all
+// existing cache and they will be recompiled when someone
+// visits.
 const CACHE_VERSION: &'static str = "0001";
 
 // Cached version of rendered blog content HTMLs
