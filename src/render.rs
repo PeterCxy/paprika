@@ -55,7 +55,9 @@ struct HomePagePost {
 #[derive(Serialize)]
 struct HomePageContext {
     blog: &'static BlogRootContext,
-    posts: Vec<HomePagePost>
+    posts: Vec<HomePagePost>,
+    prev: Option<String>,
+    next: Option<String>
 }
 
 lazy_static! {
@@ -98,14 +100,51 @@ fn build_handlebars() -> Handlebars<'static> {
     return hbs;
 }
 
-pub async fn render_homepage() -> MyResult<String> {
+pub async fn render_homepage(url: Url) -> MyResult<String> {
+    let params = UrlSearchParams::new_with_str(&url.search())
+        .map_err(|_| Error::BadRequest("Failed to parse query string".into()))?;
     let hbs = build_handlebars();
     let mut context = HomePageContext {
         blog: &ROOT_CONTEXT,
-        posts: vec![]
+        posts: vec![],
+        prev: None,
+        next: None
     };
     let posts_list = blog::PostsList::load().await;
-    for uuid in posts_list.0.iter() {
+
+    // Pagination
+    let mut posts_len = posts_list.0.len();
+    let mut offset: isize = 0;
+    if let Some(offset_str) = params.get("offset") {
+        offset = offset_str.parse().internal_err()?;
+        if offset > posts_len as isize || offset < 0 {
+            return Err(Error::BadRequest("invalid offset".into()));
+        }
+        posts_len = posts_len - offset as usize;
+    }
+
+    if offset > 0 {
+        let new_offset =
+            std::cmp::max(offset - crate::CONFIG.posts_per_page as isize, 0) as usize;
+        if new_offset != 0 {
+            context.prev = Some(format!("/?offset={}", new_offset));
+        } else {
+            context.prev = Some("/".into());
+        }
+    }
+
+    if posts_len == 0 {
+        return Err(Error::BadRequest("offset too large".into()));
+    }
+
+    if posts_len > crate::CONFIG.posts_per_page {
+        context.next = Some(
+            format!("/?offset={}",
+                offset + crate::CONFIG.posts_per_page as isize));
+    }
+    
+    // List posts
+    for uuid in posts_list.0.iter().skip(offset as usize).take(crate::CONFIG.posts_per_page) {
         let post = blog::Post::find_by_uuid(uuid).await?;
         let post_cache = blog::PostContentCache::find_or_render(&post).await;
         context.posts.push(HomePagePost {

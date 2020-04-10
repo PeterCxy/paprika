@@ -120,7 +120,7 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
     // Home page (this cannot be registered as a standalone route due to our Router)
     if path == "/" {
         return Response::new_with_opt_str_and_init(
-            Some(&render::render_homepage().await?),
+            Some(&render::render_homepage(url).await?),
             ResponseInit::new()
                 .status(200)
                 .headers(headers!{

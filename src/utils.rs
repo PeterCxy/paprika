@@ -153,7 +153,9 @@ pub struct Config {
     // Description of the blog
     pub description: String,
     // Plugin identifier used for Standard Notes
-    pub plugin_identifier: String
+    pub plugin_identifier: String,
+    // How many posts to show in one page
+    pub posts_per_page: usize
 }
 
 #[derive(BuildDateTime)]

@@ -19,8 +19,12 @@
                 </article>
                 {{ /each }}
                 <div class="pagination">
-                    <a href="#"><span class="page-older"></span></a>
-                    <a href="#"><span class="page-newer"></span></a>
+                    {{ #if next }}
+                    <a href="{{ next }}"><span class="page-older"></span></a>
+                    {{ /if }}
+                    {{ #if prev }}
+                    <a href="{{ prev }}"><span class="page-newer"></span></a>
+                    {{ /if }}
                 </div>
             </div>
         </div>
