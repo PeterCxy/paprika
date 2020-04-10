@@ -1,0 +1,24 @@
+<html lang="{{ blog.lang }}">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ title }} - {{ blog.title }}</title>
+        <link rel="stylesheet" href="/static/style.css?ver={{ build_num 0 }}"/>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            {{> sidebar.hbs }}
+            <article class="content">
+                <h1>{{ title }}</h1>
+                <span class="date">{{ format_date timestamp "%e %b, %Y" }}</span>
+                {{{ content }}}
+            </article>
+        </div>
+        <div class="toc-wrapper hidden">
+            <div class="toc">
+            <!-- This will be generated dynamically by JavaScript -->
+            <!-- We don't handle this in backend -->
+            </div>
+        </div>
+        <script src="/static/script.js?ver={{ build_num 0 }}"></script>
+    </body>
+</html>

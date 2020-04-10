@@ -60,6 +60,15 @@ struct HomePageContext {
     next: Option<String>
 }
 
+#[derive(Serialize)]
+struct PostContext {
+    blog: &'static BlogRootContext,
+    title: String,
+    url: String,
+    timestamp: u64,
+    content: String
+}
+
 lazy_static! {
     static ref THEME_CONFIG: serde_json::Value = serde_json::from_str(
         include_str!("../theme_config.json")).unwrap();
@@ -155,5 +164,20 @@ pub async fn render_homepage(url: Url) -> MyResult<String> {
         });
     }
     hbs.render("home.hbs", &context)
+        .map_err(|e| Error::BadRequest(format!("{:#?}", e)))
+}
+
+pub async fn render_post(post: blog::Post) -> MyResult<String> {
+    let hbs = build_handlebars();
+    let post_cache = blog::PostContentCache::find_or_render(&post).await;
+    let context = PostContext {
+        blog: &ROOT_CONTEXT,
+        title: post.title,
+        url: post.url,
+        timestamp: post.timestamp,
+        content: post_cache.content
+    };
+
+    hbs.render("post.hbs", &context)
         .map_err(|e| Error::BadRequest(format!("{:#?}", e)))
 }
