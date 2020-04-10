@@ -16,6 +16,14 @@ html {
     background-attachment: fixed;
 }
 
+.page-wrapper {
+    opacity: 1 !important;
+}
+
+.loading-progress {
+    display: none !important;
+}
+
 .hidden {
     display: none;
 }
