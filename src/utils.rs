@@ -1,6 +1,7 @@
 use cfg_if::cfg_if;
 use serde::Deserialize;
 use js_sys::*;
+use rbtag::BuildDateTime;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::*;
 use web_sys::*;
@@ -154,3 +155,6 @@ pub struct Config {
     // Plugin identifier used for Standard Notes
     pub plugin_identifier: String
 }
+
+#[derive(BuildDateTime)]
+pub struct BuildTag;

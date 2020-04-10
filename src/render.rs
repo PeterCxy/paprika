@@ -6,6 +6,7 @@ use chrono::NaiveDateTime;
 use handlebars::Handlebars;
 use include_dir::{include_dir, Dir};
 use js_sys::{Date, Uint8Array};
+use rbtag::BuildDateTime;
 use serde::Serialize;
 use std::vec::Vec;
 use web_sys::*;
@@ -71,6 +72,7 @@ lazy_static! {
 }
 
 handlebars_helper!(cur_year: |dummy: u64| Date::new_0().get_full_year());
+handlebars_helper!(build_num: |dummy: u64| BuildTag{}.get_build_timestamp());
 // TODO: actually implement this helper
 handlebars_helper!(format_date: |date: u64, format: str| {
     NaiveDateTime::from_timestamp(date as i64, 0).format(format).to_string()
@@ -81,6 +83,7 @@ fn build_handlebars() -> Handlebars<'static> {
 
     // Helpers
     hbs.register_helper("cur_year", Box::new(cur_year));
+    hbs.register_helper("build_num", Box::new(build_num));
     hbs.register_helper("format_date", Box::new(format_date));
 
     // Templates

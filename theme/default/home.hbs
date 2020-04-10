@@ -2,7 +2,7 @@
     <head>
         <meta charset="UTF-8">
         <title>{{ blog.title }}</title>
-        <link rel="stylesheet" href="/static/style.css?ver=20200410"/>
+        <link rel="stylesheet" href="/static/style.css?ver={{ build_num 0 }}"/>
     </head>
     <body>
         <div class="page-wrapper">
@@ -24,6 +24,6 @@
                 </div>
             </div>
         </div>
-        <script src="/static/script.js?ver=20200410"></script>
+        <script src="/static/script.js?ver={{ build_num 0 }}"></script>
     </body>
 </html>
