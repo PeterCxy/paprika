@@ -1,0 +1,29 @@
+<html lang="{{ blog.lang }}">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ blog.title }}</title>
+        <link rel="stylesheet" href="/static/style.css?ver=20200410"/>
+    </head>
+    <body>
+        <div class="page-wrapper">
+            {{> sidebar.hbs }}
+            <div class="post-list">
+                {{ #each posts }}
+                <article class="post with-divider with-divider-wide-center with-divider-thin">
+                    <h1><a href="{{ this.url }}">{{ this.title }}</a></h1>
+                    <span class="date">{{ format_date this.timestamp "%e %b, %Y" }}</span>
+                    <section>
+                        {{{ this.summary }}}
+                    </section>
+                    <a href="{{ this.url }}"><span class="read-more"></span></a>
+                </article>
+                {{ /each }}
+                <div class="pagination">
+                    <a href="#"><span class="page-older"></span></a>
+                    <a href="#"><span class="page-newer"></span></a>
+                </div>
+            </div>
+        </div>
+        <script src="/static/script.js?ver=20200410"></script>
+    </body>
+</html>

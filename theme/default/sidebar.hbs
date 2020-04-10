@@ -1,0 +1,20 @@
+<div class="sidebar">
+    <section class="avatar">
+        <img src="{{ blog.theme_config.avatar_url }}" />
+    </section>
+    <section class="introduction with-divider with-divider-right">
+        {{ blog.description }}
+    </section>
+    <section class="links with-divider with-divider-right">
+        <ul>
+            {{ #each blog.theme_config.nav_links }}
+            <li><a href="{{ this.url }}">{{ this.name }}</a></li>
+            {{ /each }}
+        </ul>
+    </section>
+    <section class="copyright">
+        Copyright © {{ cur_year 0 }} {{ blog.title }}<br />
+        Powered by <a href="https://github.com/PeterCxy/paprika" target="_blank">paprika</a><br />
+        Hosted on <a href="https://workers.cloudflare.com/" target="_blank">Cloudflare Workers</a>
+    </section>
+</div>

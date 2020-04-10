@@ -1,7 +1,13 @@
 #![feature(vec_remove_item)]
 
 #[macro_use]
+extern crate handlebars;
+#[macro_use]
+extern crate include_dir;
+#[macro_use]
 extern crate lazy_static;
+#[macro_use]
+extern crate serde_json;
 
 #[macro_use]
 mod utils;
@@ -9,6 +15,7 @@ mod router;
 mod store;
 mod blog;
 mod sn;
+mod render;
 
 use cfg_if::cfg_if;
 use js_sys::{Promise};
@@ -42,6 +49,7 @@ fn build_routes() -> router::Router {
     router.add_route("/hello", &hello_world);
     router.add_route(blog::IMG_CACHE_PREFIX, &proxy_remote_image);
     sn::build_routes(&mut router);
+    render::build_routes(&mut router);
     return router;
 }
 
@@ -109,7 +117,19 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
         ).internal_err();
     }
 
-    // TODO: handle home page and pagination on home page
+    // Home page (this cannot be registered as a standalone route due to our Router)
+    if path == "/" {
+        return Response::new_with_opt_str_and_init(
+            Some(&render::render_homepage().await?),
+            ResponseInit::new()
+                .status(200)
+                .headers(headers!{
+                    "Content-Type" => "text/html",
+                    "Cache-Control" => "no-cache"
+                }.as_ref())
+        ).internal_err();
+    }
+
     // Now we can be sure the path ends with `/`
     // (and of course it starts with `/` as per standard)
     if path.len() > 1 {

@@ -147,6 +147,10 @@ pub struct Config {
     pub secret: String,
     // Title of the blog
     pub title: String,
+    // Language of blog
+    pub lang: String,
+    // Description of the blog
+    pub description: String,
     // Plugin identifier used for Standard Notes
     pub plugin_identifier: String
 }

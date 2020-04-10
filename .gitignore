@@ -8,3 +8,4 @@ config.json
 wrangler.toml
 node_modules/
 dist/
+theme_config.json
