@@ -82,9 +82,8 @@ lazy_static! {
     };
 }
 
-handlebars_helper!(cur_year: |dummy: u64| Date::new_0().get_full_year());
-handlebars_helper!(build_num: |dummy: u64| BuildTag{}.get_build_timestamp());
-// TODO: actually implement this helper
+handlebars_helper!(cur_year: | | Date::new_0().get_full_year());
+handlebars_helper!(build_num: | | BuildTag{}.get_build_timestamp());
 handlebars_helper!(format_date: |date: u64, format: str| {
     NaiveDateTime::from_timestamp(date as i64, 0).format(format).to_string()
 });
