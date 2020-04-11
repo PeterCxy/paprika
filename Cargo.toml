@@ -10,6 +10,9 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["console_error_panic_hook", "wee_alloc"]
 
+[build]
+target = "wasm32-unknown-unknown"
+
 [build-dependencies]
 serde = "1.0"
 serde_json = "1.0"
