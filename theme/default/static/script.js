@@ -16,6 +16,20 @@ window.onbeforeunload = (ev) => {
 window.onload = function() {
   let content = document.getElementsByClassName("content");
   if (content.length == 0) return;
+  // View large image in modal when clicked
+  var modal = document.getElementById("myModal");
+  var modalImg = document.getElementById("img01");
+  document.querySelectorAll(".content img").forEach((elem) => {
+    elem.onclick = (ev) => {
+      modal.style.display = "block";
+      modalImg.src = elem.src;
+    };
+  });
+  var span = document.getElementsByClassName("close")[0];
+  span.onclick = () => {
+    modal.style.display = "none";
+  };
+  // Table-of-Contents generation
   // Don't do this on mobile; it's horrible
   if (window.matchMedia("(max-width: 1000px)").matches) return;
 
