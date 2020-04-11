@@ -52,7 +52,6 @@ body {
     padding-top: 10px;
     width: 60vw;
     max-width: 1000px;
-    min-width: 600px;
     padding-bottom: 15px;
     text-align: left;
 }
@@ -336,4 +335,53 @@ h5 {
 
 .toc ul ul ul ul ul {
     margin-left: 20px;
+}
+
+/* For mobile / small-screen devices */
+@media screen and (max-width: 1000px) {
+    /* From this width, make content fill the entire screen */
+    .page-wrapper {
+        left: 5vw;
+        width: 90vw;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    /* From this width, use mobile layout */
+    .sidebar {
+        position: relative;
+        float: none;
+        width: 80%;
+        margin-left: 10%;
+        text-align: center;
+    }
+
+    .sidebar .copyright {
+        display: none;
+    }
+
+    .sidebar .links {
+        margin-bottom: 30px;
+    }
+
+    /* Show nav links horizontally */
+    .sidebar .links ul {
+        display: flex;
+        justify-content: center;
+        padding-left: 10px;
+    }
+
+    .sidebar .links ul li {
+        display: list-item;
+        margin-right: 10px;
+    }
+
+    .post-list, .content {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .with-divider.with-divider-center-mobile::after {
+        margin-left: calc(50% - 20px) !important;
+    }
 }

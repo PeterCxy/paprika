@@ -16,6 +16,8 @@ window.onbeforeunload = (ev) => {
 window.onload = function() {
   let content = document.getElementsByClassName("content");
   if (content.length == 0) return;
+  // Don't do this on mobile; it's horrible
+  if (window.matchMedia("(max-width: 1000px)").matches) return;
 
   let level = 0;
   let maxLevel = 0;

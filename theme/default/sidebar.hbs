@@ -2,10 +2,10 @@
     <section class="avatar">
         <img src="{{ blog.theme_config.avatar_url }}" />
     </section>
-    <section class="introduction with-divider with-divider-right">
+    <section class="introduction with-divider with-divider-right with-divider-center-mobile">
         {{ blog.description }}
     </section>
-    <section class="links with-divider with-divider-right">
+    <section class="links with-divider with-divider-right with-divider-center-mobile">
         <ul>
             {{ #each blog.theme_config.nav_links }}
             <li><a href="{{ this.url }}">{{ this.name }}</a></li>

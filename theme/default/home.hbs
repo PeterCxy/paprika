@@ -1,9 +1,5 @@
 <html lang="{{ blog.lang }}">
-    <head>
-        <meta charset="UTF-8">
-        <title>{{ blog.title }}</title>
-        <link rel="stylesheet" href="/static/style.css?ver={{ build_num }}"/>
-    </head>
+    {{> head.hbs}}
     <body>
         {{> loading.hbs }}
         <div class="page-wrapper">
