@@ -9,7 +9,7 @@
         <div class="page-wrapper">
             {{> sidebar.hbs }}
             <article class="content">
-                <h1>{{ title }}</h1>
+                <h1 id="paprika-post-title">{{ title }}</h1>
                 <span class="date">{{ format_date timestamp "%e %b, %Y" }}</span>
                 {{{ content }}}
             </article>
