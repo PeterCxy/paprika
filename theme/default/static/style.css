@@ -7,7 +7,6 @@ html, body {
     font-family: 'Fira Sans', sans-serif;
     font-size: 18px;
     text-shadow: 0 0 3px #dddddd;
-    overflow-x: hidden;
     color: rgb(100, 100, 100);
     scrollbar-color: #E91E63 #00000000;
     scrollbar-width: thin;
@@ -47,8 +46,6 @@ body {
 
 .page-wrapper {
     display: inline-block;
-    position: absolute;
-    left: 25vw;
     padding-top: 10px;
     width: 60vw;
     max-width: 1000px;
