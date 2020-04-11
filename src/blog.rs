@@ -120,10 +120,17 @@ impl Post {
 // library updates. Updaing this value invalidates all
 // existing cache and they will be recompiled when someone
 // visits.
-const CACHE_VERSION: &'static str = "0007";
+const CACHE_VERSION: &'static str = "0008";
 
 // The prefix path used for caching remote images
 pub const IMG_CACHE_PREFIX: &'static str = "/imgcache/";
+
+// The divider for summary
+// Insert this into the article as a standalone line to
+// make everything above it the summary. DO NOT insert
+// it within paragraph or anything else otherwise
+// the layout may break.
+const SUMMARY_DIVIDER: &'static str = "<!-- More -->";
 
 // Cached version of rendered blog content HTMLs
 // compiled from Markdown
@@ -145,6 +152,11 @@ pub struct PostContentCache {
     version: String,
     // Digest of the original content
     orig_digest: String,
+    // Summary can be defined by inserting SUMMARY_DIVIDER
+    // into the article. Everything before this tag will be
+    // the summary. Becuase it's an HTML comment, it won't
+    // show up in the rendered result.
+    pub summary: String,
     // Compiled content in HTML
     pub content: String
 }
@@ -283,6 +295,10 @@ impl PostContentCache {
             uuid: post.uuid.clone(),
             version: CACHE_VERSION.to_owned(),
             orig_digest: crate::utils::sha1(&post.content).await,
+            summary: match html_output.find(SUMMARY_DIVIDER) {
+                None => html_output.clone(),
+                Some(x) => (&html_output[0..x]).to_owned()
+            },
             content: html_output
         }
     }

@@ -160,7 +160,7 @@ pub async fn render_homepage(url: Url) -> MyResult<String> {
             title: post.title,
             url: post.url,
             timestamp: post.timestamp,
-            summary: post_cache.content // TODO: make actual summaries
+            summary: post_cache.summary
         });
     }
     hbs.render("home.hbs", &context)
