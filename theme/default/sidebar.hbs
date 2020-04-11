@@ -8,7 +8,7 @@
     <section class="links with-divider with-divider-right with-divider-center-mobile">
         <ul>
             {{ #each blog.theme_config.nav_links }}
-            <li><a href="{{ this.url }}">{{ this.name }}</a></li>
+            <li><a {{ #if this.target }}target="{{ this.target }}"{{ /if }} href="{{ this.url }}">{{ this.name }}</a></li>
             {{ /each }}
         </ul>
     </section>
