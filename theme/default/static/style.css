@@ -267,6 +267,12 @@ h5 {
     font-style: italic;
 }
 
+.content {
+    /* To match the look of posts on home page */
+    padding-top: 10px;
+    padding-left: 5px;
+}
+
 .post img,
 .content img {
     max-width: 100%;
