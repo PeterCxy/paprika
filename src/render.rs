@@ -11,8 +11,9 @@ use serde::Serialize;
 use std::vec::Vec;
 use web_sys::*;
 
-// TODO: allow static configuration of which theme to use
-const THEME_DIR: Dir = include_dir!("theme/default");
+// Allows user-configurable theme at build-time
+// See build.rs
+include!(concat!(env!("OUT_DIR"), "/load_theme.rs"));
 
 pub fn build_routes(router: &mut Router) {
     router.add_route("/static/", &serve_static);
