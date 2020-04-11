@@ -7,3 +7,8 @@ avatar.onmouseover = (ev) => {
 avatar.onanimationend = (ev) => {
   ev.target.className = "";
 };
+
+// Trigger progress bar when loading new page
+window.onbeforeunload = (ev) => {
+  document.getElementsByClassName("loading-progress")[0].className = "loading-progress force-visible";
+};

@@ -24,6 +24,10 @@ html {
     display: none !important;
 }
 
+.loading-progress.force-visible {
+    display: block !important;
+}
+
 .hidden {
     display: none;
 }
