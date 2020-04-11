@@ -29,6 +29,8 @@ window.onload = function() {
   span.onclick = () => {
     modal.style.display = "none";
   };
+  modal.onclick = span.onclick;
+  modalImg.onclick = (ev) => ev.stopPropagation();
   // Table-of-Contents generation
   // Don't do this on mobile; it's horrible
   if (window.matchMedia("(max-width: 1000px)").matches) return;
