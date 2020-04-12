@@ -106,6 +106,8 @@ lazy_static! {
             description: &crate::CONFIG.description
         }
     };
+
+    static ref HANDLEBARS: Handlebars<'static> = build_handlebars();
 }
 
 handlebars_helper!(cur_year: | | Date::new_0().get_full_year());
@@ -160,7 +162,6 @@ pub fn render_homepage(url: Url) -> impl std::future::Future<Output = MyResult<S
 async fn _render_homepage(url: Url, tpl_name: &str) -> MyResult<String> {
     let params = UrlSearchParams::new_with_str(&url.search())
         .map_err(|_| Error::BadRequest("Failed to parse query string".into()))?;
-    let hbs = build_handlebars();
     let mut context = HomePageContext {
         blog: &ROOT_CONTEXT,
         page: build_page_context(&url),
@@ -212,12 +213,11 @@ async fn _render_homepage(url: Url, tpl_name: &str) -> MyResult<String> {
             summary: post_cache.summary
         });
     }
-    hbs.render(tpl_name, &context)
+    HANDLEBARS.render(tpl_name, &context)
         .map_err(|e| Error::BadRequest(format!("{:#?}", e)))
 }
 
 pub async fn render_post(url: Url, post: blog::Post) -> MyResult<String> {
-    let hbs = build_handlebars();
     let post_cache = blog::PostContentCache::find_or_render(&post).await;
     let context = PostContext {
         blog: &ROOT_CONTEXT,
@@ -228,6 +228,6 @@ pub async fn render_post(url: Url, post: blog::Post) -> MyResult<String> {
         content: post_cache.content
     };
 
-    hbs.render("post.hbs", &context)
+    HANDLEBARS.render("post.hbs", &context)
         .map_err(|e| Error::BadRequest(format!("{:#?}", e)))
 }
