@@ -22,10 +22,11 @@ Deployment
 ===
 
 1. Complete all configuration files according to the sections below (otherwise the project won't build)
-2. Run `wrangler publish` to upload to Cloudflare Workers
-3. Set up correct routes in Cloudflare control panel
-4. Add your own instance of Paprika to your Standard Notes as a plugin (instructions available below)
-5. Publish!
+2. Run `npm install --development` to install webpack and other node build dependencies.
+3. Run `wrangler publish` to upload to Cloudflare Workers
+4. Set up correct routes in Cloudflare control panel
+5. Add your own instance of Paprika to your Standard Notes as a plugin (instructions available below)
+6. Publish!
 
 Note that all configuration and themes will be included statically in the final binary. To modify any of them, you will need to re-run `wrangler publish` to rebuild the entire program.
 
