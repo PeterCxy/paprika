@@ -27,6 +27,8 @@ Deployment
 4. Add your own instance of Paprika to your Standard Notes as a plugin (instructions available below)
 5. Publish!
 
+Note that all configuration and themes will be included statically in the final binary. To modify any of them, you will need to re-run `wrangler publish` to rebuild the entire program.
+
 Configuration: wrangler.toml
 ===
 
@@ -82,7 +84,7 @@ This is the main configuration file. The file will be compiled statically into t
 Configuration: theme_config.json
 ===
 
-`theme_config.json` will be passed to Handlebar templates in the theme as `blog.theme_config`. A theme can thus use any extra information available via this configuration file. The `default` theme currently supports the following options:
+`theme_config.json` will be passed to Handlebars templates in the theme as `blog.theme_config` (See `BlogRootContext` and other `Context` structures in `src/render.rs`; `serde_json::Value` means arbitrary JSON object). A theme can thus use arbitrary extra information available via this configuration file. The `default` theme currently supports the following options:
 
 ```json
 {
@@ -141,3 +143,26 @@ By default, the timestamp and the URL of any new post will be generated automati
 Normally, if such a customization header is not present, a post's metadata (URL and timestamp) will not be updated when you update a post. However, when this header is present, then the metadata will __always__ be updated.
 
 When a post's `url` is changed, the old one will become an alias, 302-redirected to the new one.
+
+Themes
+===
+
+A theme is a set of Handlebars templates and static assets located in a direct subdirectory of the `theme` folder. The structure should be as follows:
+
+```
+- theme/
+  - <theme_name>/
+    - static/
+      - ....
+    - home.hbs
+    - post.hbs
+    - ...
+```
+
+Everything inside the `static` folder will be available at `https://<your_domain>/static/`.
+
+`home.hbs` will be used to render the home page (post list), while `post.hbs` will be used for single-post pages (i.e. the detail page). These templates can import other templates located in the same directory via the `{{> some_other_template.hbs }}` syntax.
+
+The execution context of each template is defined in `src/render.rs`, as those `*Context` structs. Extra helpers are also defined in that file with the `handlebars_helper!` macros. Code there is pretty self-explanatory, please refer to the structs and the default theme for details on how to use the execution contexts.
+
+The theme directory selected via `config.json` will be included into the final binary. Therefore, please make sure your assets are not too huge to fit in the 1MB binary limit of Cloudflare Worker.
