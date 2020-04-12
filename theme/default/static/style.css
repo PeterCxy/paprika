@@ -120,6 +120,14 @@ code:not(.hljs) {
     text-shadow: none;
 }
 
+blockquote {
+    border-left: 3px solid #cdcdcd;
+    color: #989898;
+    box-sizing: border-box;
+    padding-left: 2em;
+    margin-left: 0;
+}
+
 /* Sidebar */
 .sidebar {
     float: left;
