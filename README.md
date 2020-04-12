@@ -17,7 +17,7 @@ Prerequisites
 1. The `wrangler` cli tool from Cloudflare
 2. node.js + npm
 3. rustc + cargo, with the latest nightly toolchain
-4. wasm-pack
+4. wasm-pack and wasm-opt
 
 Deployment
 ===
