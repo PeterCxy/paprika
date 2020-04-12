@@ -13,6 +13,7 @@ extern crate serde_json;
 mod utils;
 mod router;
 mod store;
+mod hljs;
 mod blog;
 mod sn;
 mod render;

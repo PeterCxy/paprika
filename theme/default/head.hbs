@@ -2,6 +2,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ #if title }}{{ title }} - {{ blog.title }}{{ else }}{{ blog.title }}{{ /if }}</title>
+    <link rel="stylesheet" href="/static/monokai-sublime.css?ver={{ build_num }}" />
     <link rel="stylesheet" href="/static/style.css?ver={{ build_num }}" />
     <link rel="alternate" type="application/rss+xml" title="RSS Feed for {{ blog.title }}" href="/feed.xml" />
 </head>

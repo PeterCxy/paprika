@@ -120,7 +120,7 @@ impl Post {
 // library updates. Updaing this value invalidates all
 // existing cache and they will be recompiled when someone
 // visits.
-const CACHE_VERSION: &'static str = "0009";
+const CACHE_VERSION: &'static str = "0015";
 
 // The prefix path used for caching remote images
 pub const IMG_CACHE_PREFIX: &'static str = "/imgcache/";
@@ -267,6 +267,13 @@ impl PostContentCache {
             
             last_idx = idx + 3 + inserted_id.len();
         }
+
+        // Transform all <pre><code> to <pre><code class="hljs">
+        // For syntax highlighting
+        // Note that though the Markdown engine may also insert classes,
+        // because we insert our class before that class, ours will
+        // always take precedence
+        *html = html.replace("<pre><code", "<pre><code class=\"hljs\" ");
     }
 
     // Only renders the content and spits out a cache object
@@ -278,10 +285,35 @@ impl PostContentCache {
         // because we need to asynchronously transform the events
         // which could not be done through mapping on iterators
         let mut parser: Vec<Event> = Parser::new_ext(&post.content, Options::all()).collect();
+        let mut in_code_block = false;
+        let mut code_block_lang = "";
         for ev in parser.iter_mut() {
             match ev {
+                Event::Start(Tag::CodeBlock(block)) => {
+                    in_code_block = true;
+                    match block {
+                        CodeBlockKind::Fenced(lang) => code_block_lang = lang,
+                        CodeBlockKind::Indented => code_block_lang = ""
+                    }
+                },
+                Event::End(Tag::CodeBlock(_)) => {
+                    in_code_block = false;
+                    code_block_lang = "";
+                },
                 Event::Start(tag) | Event::End(tag) => {
                     Self::transform_tag(tag).await;
+                },
+                Event::Text(text) => {
+                    if in_code_block {
+                        let highlighted = if code_block_lang != "" {
+                            crate::hljs::highlight(code_block_lang, text)
+                        } else {
+                            crate::hljs::highlight_auto(text)
+                        };
+
+                        *ev = Event::Html(
+                            highlighted.into());
+                    }
                 }
                 _ => ()
             };

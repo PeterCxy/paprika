@@ -18,6 +18,7 @@
   "homepage": "https://github.com/PeterCxy/paprika#readme",
   "devDependencies": {
     "@wasm-tool/wasm-pack-plugin": "^1.2.0",
+    "highlight.js": "^9.18.1",
     "webpack": "^4.42.1"
   }
 }
