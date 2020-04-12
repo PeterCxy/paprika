@@ -6,6 +6,7 @@ use std::time::*;
 fn main() {
     println!("cargo:rerun-if-changed=config.json");
     println!("cargo:rerun-if-changed=src");
+    println!("cargo:rerun-if-changed=theme");
     println!("cargo:rerun-if-changed=Cargo.toml");
     // Load theme name from config.json and output code to load the theme via include_dir!
     let config: serde_json::Value = 
