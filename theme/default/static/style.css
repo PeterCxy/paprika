@@ -489,3 +489,18 @@ h5 {
         width: 100%;
     }
 }
+
+/* Extra customization for hljs */
+.hljs {
+    text-shadow: 0 0 2px #777777;
+    font-size: 0.8em;
+    border-radius: 4px;
+    scrollbar-color: #e91e63 #00000000;
+    scrollbar-width: thin;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+    transition: box-shadow 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.hljs:hover {
+    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
