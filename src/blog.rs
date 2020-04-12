@@ -120,7 +120,7 @@ impl Post {
 // library updates. Updaing this value invalidates all
 // existing cache and they will be recompiled when someone
 // visits.
-const CACHE_VERSION: &'static str = "0008";
+const CACHE_VERSION: &'static str = "0009";
 
 // The prefix path used for caching remote images
 pub const IMG_CACHE_PREFIX: &'static str = "/imgcache/";
@@ -274,12 +274,10 @@ impl PostContentCache {
     // Despite the signature, this function BLOCKS
     // async only comes from digesting via SubtleCrypto
     pub async fn render(post: &Post) -> PostContentCache {
-        // TODO: enable some options; also generate a summary (?)
-        //       from first few paragraphs
         // We have to first collect all events into a vector
         // because we need to asynchronously transform the events
         // which could not be done through mapping on iterators
-        let mut parser: Vec<Event> = Parser::new(&post.content).collect();
+        let mut parser: Vec<Event> = Parser::new_ext(&post.content, Options::all()).collect();
         for ev in parser.iter_mut() {
             match ev {
                 Event::Start(tag) | Event::End(tag) => {
