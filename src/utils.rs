@@ -1,7 +1,6 @@
 use cfg_if::cfg_if;
 use serde::Deserialize;
 use js_sys::*;
-use rbtag::BuildDateTime;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::*;
 use web_sys::*;
@@ -158,5 +157,4 @@ pub struct Config {
     pub posts_per_page: usize
 }
 
-#[derive(BuildDateTime)]
-pub struct BuildTag;
+include!(concat!(env!("OUT_DIR"), "/build_timestamp.rs"));

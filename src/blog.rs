@@ -7,7 +7,6 @@
 use crate::store;
 use crate::utils::*;
 use pulldown_cmark::*;
-use rbtag::BuildDateTime;
 use serde::{Serialize, Deserialize};
 use std::vec::Vec;
 
@@ -120,7 +119,7 @@ lazy_static! {
     // Whenever this is changed, all cache will be invalided
     // Use build timestamp string
     static ref CACHE_VERSION: String = {
-        format!("{}", BuildTag{}.get_build_timestamp())
+        format!("{}", BUILD_TIMESTAMP)
     };
 }
 
