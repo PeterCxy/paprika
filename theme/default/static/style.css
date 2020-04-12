@@ -16,7 +16,6 @@ body {
 html {
     background-image: url("/static/whitenoise-100x100.png");
     background-repeat: repeat;
-    background-attachment: fixed;
 }
 
 .page-wrapper {
