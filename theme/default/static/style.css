@@ -367,6 +367,11 @@ h5 {
 
 @media screen and (max-width: 600px) {
     /* From this width, use mobile layout */
+    body, html {
+        /* Performance of text-shadow on some mobile browsers is terrible */
+        text-shadow: none;
+    }
+
     .sidebar {
         position: relative;
         float: none;
