@@ -12,6 +12,11 @@ pub fn highlight_auto(code: &str) -> String {
 }
 
 pub fn highlight(lang: &str, code: &str) -> String {
-    Reflect::get(&hljs_highlight(lang, code), &"value".into())
-        .unwrap().as_string().unwrap()
+    match hljs_highlight(lang, code) {
+        Ok(res) => Reflect::get(&res, &"value".into())
+                        .unwrap().as_string().unwrap(),
+        // This can throw error if `lang` is not supported
+        // or not imported by build.rs (and thus config.json)
+        Err(_) => code.to_owned()
+    }
 }

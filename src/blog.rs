@@ -120,7 +120,7 @@ impl Post {
 // library updates. Updaing this value invalidates all
 // existing cache and they will be recompiled when someone
 // visits.
-const CACHE_VERSION: &'static str = "0015";
+const CACHE_VERSION: &'static str = "0017";
 
 // The prefix path used for caching remote images
 pub const IMG_CACHE_PREFIX: &'static str = "/imgcache/";
