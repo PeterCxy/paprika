@@ -148,7 +148,7 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
             } else {
                 // TODO: Actually render the page...
                 return Response::new_with_opt_str_and_init(
-                    Some(&render::render_post(post).await?),
+                    Some(&render::render_post(url, post).await?),
                     ResponseInit::new()
                         .status(200)
                         .headers(headers!{
