@@ -29,7 +29,8 @@ async fn serve_static(_req: Request, url: Url) -> MyResult<Response> {
             ResponseInit::new()
                 .status(200)
                 .headers(headers!{
-                    "Content-Type" => mime_guess::from_path(path).first().unwrap().essence_str()
+                    "Content-Type" => mime_guess::from_path(path).first().unwrap().essence_str(),
+                    "Cache-Control" => &crate::CACHE_CONTROL_STATIC_FILE
                 }.as_ref())
         ).internal_err()
     } else {

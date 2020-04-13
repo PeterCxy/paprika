@@ -156,10 +156,17 @@ pub struct Config {
     pub plugin_identifier: String,
     // How many posts to show in one page
     pub posts_per_page: usize,
+    // The browser cache timeout for static resources in seconds
+    #[serde(default = "default_maxage")]
+    pub cache_maxage: u64,
     // Hard-coded redirects (for migrating old articles and such)
     // Paths here MUST include the starting "/"
     // UNLIKE in article headers
     pub redirects: Option<HashMap<String, String>>
+}
+
+fn default_maxage() -> u64 {
+    60 * 60 * 24 * 7 // default to a week
 }
 
 include!(concat!(env!("OUT_DIR"), "/build_timestamp.rs"));

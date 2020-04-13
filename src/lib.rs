@@ -43,6 +43,10 @@ lazy_static! {
     pub static ref CONFIG: utils::Config = {
         serde_json::from_str(std::include_str!("../config.json")).unwrap()
     };
+
+    pub static ref CACHE_CONTROL_STATIC_FILE: String = {
+        format!("max-age={}", CONFIG.cache_maxage)
+    };
 }
 
 fn build_routes() -> router::Router {
@@ -97,7 +101,8 @@ async fn proxy_remote_image(req: Request, url: Url) -> MyResult<Response> {
         ResponseInit::new()
             .status(remote_resp.status())
             .headers(headers!{
-                "Content-Type" => &get_header!(remote_headers, "content-type")
+                "Content-Type" => &get_header!(remote_headers, "content-type"),
+                "Cache-Control" => &CACHE_CONTROL_STATIC_FILE
             }.as_ref())
     ).internal_err()
 }

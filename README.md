@@ -66,6 +66,7 @@ This is the main configuration file. The file will be compiled statically into t
   "description": "<description>",
   "plugin_identifier": "com.example.change.this.to.whatever.you.like",
   "posts_per_page": 5,
+  "cache_maxage": 86400,
   "redirects": {
     "/foo": "/bar",
     ...
@@ -86,6 +87,8 @@ This is the main configuration file. The file will be compiled statically into t
 `plugin_identifier`: Used in Standard Notes to distinguish plugins.
 
 `redirects`: OPTIONAL. A map of URLs where the key will be mapped to the value by Paprika using 301 redirects. This is mainly useful for migration from another blogging platform.
+
+`cache_maxage`: OPTIONAL. A value in seconds determining how long the browser should cache static resources from the blog. If omitted, the default value is a week.
 
 `hljs`: An array of language support from `highlight.js` to be included in the final binary. The full `highlight.js` is notoriously huge and there's really no reason to include a bazillion languages you will never actually use in your blog posts. This will be read by `build.rs` to generate a JS shim that will load all languages in the array to the final binary via `webpack` support for `require`.
 
