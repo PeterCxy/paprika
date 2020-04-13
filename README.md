@@ -174,3 +174,10 @@ Everything inside the `static` folder will be available at `https://<your_domain
 The execution context of each template is defined in `src/render.rs`, as those `*Context` structs. Extra helpers are also defined in that file with the `handlebars_helper!` macros. Code there is pretty self-explanatory, please refer to the structs and the default theme for details on how to use the execution contexts.
 
 The theme directory selected via `config.json` will be included into the final binary. Therefore, please make sure your assets are not too huge to fit in the 1MB binary limit of Cloudflare Worker.
+
+FAQs
+===
+
+- __Whats the point of using Cloudflare Workers when you need to self-host a Standard Notes instance anyway?__
+
+    Well, mainly, for me, I just wanted to try something new. Since blogs are not exactly private data, I am pretty comfortable hosting it anywhere -- and because I like Standard Notes, I wanted to have something that integrates directly with it just like the official Listed service, but with more fine-grained control over both how it looks and how it behaves. Also, the blog is something that I'd like to always keep online, even during maintanence of my server, or even after hardware failures, and, well, at least Workers can be online more than my server can do. In addition, Standard Notes does not necessarily need to be self-hosted, since the protocol basically makes the server blind of most of information about your notes. In that case, with Paprika, you can basically have a maintanence-free blogging experience right out of your own notebook.
