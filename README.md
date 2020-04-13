@@ -1,7 +1,7 @@
 Paprika
 ---
 
-Yet another blog system that runs on Cloudflare Workers, and integrates with [Standard Notes](https://standardnotes.org/) (a self-hosted note-taking software) for a great editing experience, while giving you more freedom than the Listed service provided by Standard Notes.
+Yet another blog system that runs on Cloudflare Workers, and integrates with [Standard Notes](https://standardnotes.org/) (a self-hosted note-taking software) for a great editing experience, while giving you more freedom than the Listed service provided by Standard Notes. Publish directly from your Standard Notes notebook with Paprika!
 
 This requires Cloudflare Workers KV for storage and thus needs the paid Unlimited plan to work. However, it is possible to swap out the storage, if you would like to fiddle with the code, and use something like S3 to use it 100% free on Workers (barring S3 costs).
 
