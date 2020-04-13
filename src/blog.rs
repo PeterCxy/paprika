@@ -172,6 +172,12 @@ impl PostContentCache {
     }
 
     pub async fn is_external_url_whitelisted_for_cache(url: &str) -> bool {
+        if let Some(list) = &crate::CONFIG.extra_remote_proxy_whitelist {
+            if list.contains(&url.into()) {
+                return true;
+            }
+        }
+
         match store::get_str(&Self::url_to_cache_whitelist_key(url)).await {
             Ok(s) => s == "Y",
             Err(_) => false

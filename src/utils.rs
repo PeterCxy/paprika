@@ -162,7 +162,9 @@ pub struct Config {
     // Hard-coded redirects (for migrating old articles and such)
     // Paths here MUST include the starting "/"
     // UNLIKE in article headers
-    pub redirects: Option<HashMap<String, String>>
+    pub redirects: Option<HashMap<String, String>>,
+    // Additional remote resource proxy whitelist
+    pub extra_remote_proxy_whitelist: Option<Vec<String>>
 }
 
 fn default_maxage() -> u64 {

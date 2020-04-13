@@ -71,6 +71,10 @@ This is the main configuration file. The file will be compiled statically into t
     "/foo": "/bar",
     ...
   },
+  "extra_remote_proxy_whitelist": [
+    "<url>",
+    ...
+  ],
   "hljs": [
     "rust",
     "javascript",
@@ -89,6 +93,8 @@ This is the main configuration file. The file will be compiled statically into t
 `redirects`: OPTIONAL. A map of URLs where the key will be mapped to the value by Paprika using 301 redirects. This is mainly useful for migration from another blogging platform.
 
 `cache_maxage`: OPTIONAL. A value in seconds determining how long the browser should cache static resources from the blog. If omitted, the default value is a week.
+
+`extra_remote_proxy_whitelist`: OPTIONAL. See the Remote Resource Proxy section below for details.
 
 `hljs`: An array of language support from `highlight.js` to be included in the final binary. The full `highlight.js` is notoriously huge and there's really no reason to include a bazillion languages you will never actually use in your blog posts. This will be read by `build.rs` to generate a JS shim that will load all languages in the array to the final binary via `webpack` support for `require`.
 
@@ -177,6 +183,23 @@ Everything inside the `static` folder will be available at `https://<your_domain
 The execution context of each template is defined in `src/render.rs`, as those `*Context` structs. Extra helpers are also defined in that file with the `handlebars_helper!` macros. Code there is pretty self-explanatory, please refer to the structs and the default theme for details on how to use the execution contexts.
 
 The theme directory selected via `config.json` will be included into the final binary. Therefore, please make sure your assets are not too huge to fit in the 1MB binary limit of Cloudflare Worker.
+
+Remote Resource Proxy
+===
+
+Paprika replaces all external images inserted into your posts by Markdown with a proxied version hosted on the same URL of your blog under the `/imgcache/` path. This ensures that the source websites cannot see your visitors' IP addresses and that the Cloudflare CDN policy can be applied to them to ensure faster loading time.
+
+The cached URL is formatted like below:
+
+```
+https://<your_domain>/imgcache/<origin_url_urlencoded>
+```
+
+where `origin_url_urlencoded` is the URL-encoded version (as per JavaScript `encodeURIComponent` function) of the URL to the original resource. A whitelist of origin URLs is maintained in Workers KV so that this URL cannot be used on arbitrary content -- only those that are present in your published posts will be reverse-proxied. The whitelist is updated every time a post is re-rendered -- that is, when you create / update a post or update the Paprika program or its other resources.
+
+You can hard-code more whitelisted URLs (non-URL-encoded version) in the `extra_remote_proxy_whitelist` array of `config.json`. This may be useful if your theme supports things like avatars, where custom URLs need to be provided (which is the case with the default theme).
+
+The reverse-proxy only forwards the `Content-Type` header and the actual body of the response (of course, after the body is decoded properly and cached by Cloudflare's Fetch API). It also follows 30x redirects by default. Other fields will be re-calculated by the runtime before returning to the client.
 
 FAQs
 ===
