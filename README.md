@@ -66,6 +66,10 @@ This is the main configuration file. The file will be compiled statically into t
   "description": "<description>",
   "plugin_identifier": "com.example.change.this.to.whatever.you.like",
   "posts_per_page": 5,
+  "redirects": {
+    "/foo": "/bar",
+    ...
+  },
   "hljs": [
     "rust",
     "javascript",
@@ -80,6 +84,8 @@ This is the main configuration file. The file will be compiled statically into t
 `theme`: The name of the theme to use for your blog. Must be a subdirectory in `./theme`, and the default one is `default`. The selected theme will be compiled statically into the final `.wasm` binary. For more information on themes, continue reading this documentation.
 
 `plugin_identifier`: Used in Standard Notes to distinguish plugins.
+
+`redirects`: OPTIONAL. A map of URLs where the key will be mapped to the value by Paprika using 301 redirects. This is mainly useful for migration from another blogging platform.
 
 `hljs`: An array of language support from `highlight.js` to be included in the final binary. The full `highlight.js` is notoriously huge and there's really no reason to include a bazillion languages you will never actually use in your blog posts. This will be read by `build.rs` to generate a JS shim that will load all languages in the array to the final binary via `webpack` support for `require`.
 

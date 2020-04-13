@@ -104,9 +104,24 @@ async fn proxy_remote_image(req: Request, url: Url) -> MyResult<Response> {
 
 async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
     // We assume that anything that falls into this catch-all handler
-    // would be either posts or 404
-    // If the path doesn't end with `/`, normalize it first
+    // would be posts, 404, or hard-codede redirects
     let path = url.pathname();
+
+    // Handle hard-coded redirects in config first
+    if let Some(redirects) = &CONFIG.redirects {
+        if let Some(new_path) = redirects.get(&path) {
+            return Response::new_with_opt_str_and_init(
+                None,
+                ResponseInit::new()
+                    .status(301)
+                    .headers(headers!{
+                        "Location" => &format!("{}{}", url.origin(), new_path)
+                    }.as_ref())
+            ).internal_err();
+        }
+    }
+
+    // If the path doesn't end with `/`, normalize it first
     if !path.ends_with("/") {
         return Response::new_with_opt_str_and_init(
             None,
