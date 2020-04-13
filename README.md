@@ -170,7 +170,7 @@ A theme is a set of Handlebars templates and static assets located in a direct s
     - ...
 ```
 
-Everything inside the `static` folder will be available at `https://<your_domain>/static/`.
+Everything inside the `static` folder will be available at `https://<your_domain>/static/`. These resources are subject to browser caching, so to ensure the resources are always re-loaded by the browser when Paprika or the theme updates, you should add a query string to links to your static resources using the `build_num` helper available via Handlebars, e.g. `?ver={{ build_num }}` (see the default theme for details). This ensures that each time Paprika gets rebuilt, the links will be different due to the `build_num` and all clients should fetch the updated resources.
 
 `home.hbs` will be used to render the home page (post list), while `post.hbs` will be used for single-post pages (i.e. the detail page). These templates can import other templates located in the same directory via the `{{> some_other_template.hbs }}` syntax.
 
