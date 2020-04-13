@@ -3,7 +3,7 @@ Paprika
 
 Yet another blog system that runs on Cloudflare Workers, and integrates with [Standard Notes](https://standardnotes.org/) (a self-hosted note-taking software) for a great editing experience, while giving you more freedom than the Listed service provided by Standard Notes.
 
-This requires Cloudflare Workers KV for storage and thus needs the paid Unlimited plan to work. However, it is possible to swap out the storage and use something like S3 to use it 100% free on Workers (barring S3 costs).
+This requires Cloudflare Workers KV for storage and thus needs the paid Unlimited plan to work. However, it is possible to swap out the storage, if you would like to fiddle with the code, and use something like S3 to use it 100% free on Workers (barring S3 costs).
 
 As a practice, Paprika was written in Rust and compiled to WebAssembly for execution on Cloudflare Workers, using `wasm-bindgen` to interact with the JS environment. One single JS dependency, `highlight.js`, was used because there's simply no good alternative from the Rust ecosystem. `webpack` was used for an automatic, cached loading experience of the WebAssembly module (the official template for WebAssembly by Cloudflare is terrible because it tries to re-instantiate the module every time a request comes in; using `webpack` fixed the issue because it's much smarter), along with the ability to load `highlight.js` modularly.
 
