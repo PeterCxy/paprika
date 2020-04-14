@@ -291,11 +291,17 @@ blockquote {
 .post a:link,
 .post a:visited,
 .post a:hover,
-.post a:active {
+.post a:active,
+.content a,
+.content a:link,
+.content a:visited,
+.content a:hover,
+.content a:active {
     color: #e91e63;
 }
 
-.post a:hover {
+.post a:hover,
+.content a:hover {
     text-decoration: underline;
 }
 
