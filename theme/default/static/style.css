@@ -349,6 +349,7 @@ blockquote {
 
 .toc li {
     margin-bottom: 2px;
+    transition: color 0.2s ease-in-out;
 }
 
 .toc li::before {
