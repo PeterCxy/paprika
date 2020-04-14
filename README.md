@@ -149,7 +149,12 @@ By default, the timestamp and the URL of any new post will be generated automati
 {
     "url": "some-awesome-url",
     "timestamp": "YYYY-mm-dd",
-    "unlist": true
+    "unlist": true,
+    "theme_config": {
+      "no_itte": false,
+      "itte_page_path": "...",
+      ...
+    }
 }
 ```
 ~~~
@@ -159,6 +164,12 @@ By default, the timestamp and the URL of any new post will be generated automati
 `timestamp`: Customize the displayed date of the post. This does not affect the order of posts on home page -- posts that were created later always take precedence, regardless of their timestamp. This is mainly useful when migrating old articles.
 
 `unlist` / `unlisted`: when set to `true`, the post won't appear in home page, while still being accessible via its URL.
+
+`theme_config`: OPTIONAL. You can pass parameters to the theme via this option. This will be available in `post.hbs` as the `theme_config` variable in execution context. Consult the theme for detailed information on what's available. For the default theme:
+
+`theme_config.no_itte`: OPTIONAL. When set to true, there will be no Itte comment box on this post.
+
+`theme_config.itte_page_path`: OPTIONAL. Override the path that identifies the page in Itte database. This is useful for migration from another blog software also using Itte. You can use this to instruct Itte to behave as if the page URL hasn't changed.
 
 Normally, if such a customization header is not present, a post's metadata (URL and timestamp) will not be updated when you update a post. However, when this header is present, then the metadata will __always__ be updated.
 
