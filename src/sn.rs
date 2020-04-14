@@ -122,15 +122,19 @@ struct Metadata {
 // Normally when you update a post, the timestamp and URL will not be updated,
 // but when you have custom metadata, they will always be updated.
 // When the URL is updated, the old URL will automatically 301 to the new one
-fn parse_custom_metadata_from_content(text: String) -> (Option<CustomMetadata>, String) {
+// An error will be returned if the JSON block exists but is malformed
+// Otherwise, it's always Ok with metadata or no metadata
+// This is to prevent people from sending a malformed header and accidentally
+// making posts public
+fn parse_custom_metadata_from_content(text: String) -> MyResult<(Option<CustomMetadata>, String)> {
     if !text.starts_with("```json\n") {
-        (None, text)
+        Ok((None, text))
     } else {
         match text.find("```\n\n") {
-            None => (None, text),
+            None => Ok((None, text)),
             Some(pos) => {
-                let json = serde_json::from_str(&text[8..pos]).ok();
-                return (json, text[pos + 5..].to_owned())
+                let json = serde_json::from_str(&text[8..pos]).internal_err()?;
+                return Ok((json, text[pos + 5..].to_owned()))
             }
         }
     }
@@ -188,7 +192,7 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     let uuid = data.items[0].uuid.clone();
     let text = data.items[0].content.text.clone();
     let title = data.items[0].content.title.clone();
-    let (custom_metadata, text) = parse_custom_metadata_from_content(text);
+    let (custom_metadata, text) = parse_custom_metadata_from_content(text)?;
     let theme_config = custom_metadata.as_ref().and_then(|it| it.theme_config.clone());
     let metadata = build_metadata(custom_metadata, &uuid, &title);
     let post = match blog::Post::find_by_uuid(&uuid).await {
