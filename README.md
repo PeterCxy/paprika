@@ -106,6 +106,7 @@ Configuration: theme_config.json
 ```json
 {
   "avatar_url": "<url_of_your_avatar>",
+  "itte_url": "https://<your_itte_instance>",
   "nav_links": [
     {
       "name": "<nav_name>",
@@ -118,6 +119,8 @@ Configuration: theme_config.json
 ```
 
 `nav_links`: a set of navigation links to be displayed in the sidebar (or at the top on mobile). You can set `"target": "_blank"` to make the link open in new tabs, while omitting this attribute will make the link behave as a normal link, that is, open in the current page.
+
+`itte_url`: OPTIONAL. A URL to your [Itte](https://github.com/PeterCxy/itte) instance, the comment system.
 
 Installation in Standard Notes
 ===

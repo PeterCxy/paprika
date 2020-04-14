@@ -8,6 +8,11 @@
                 <h1 id="paprika-post-title">{{ title }}</h1>
                 <span class="date">{{ format_date timestamp "%e %b, %Y" }}</span>
                 {{{ content }}}
+                {{ #if blog.theme_config.itte_url }}
+                <section id="itte-thread" data-path="{{ page.base_url }}{{ page.pathname }}">
+                </section>
+                <script src="{{ blog.theme_config.itte_url }}/itte.js"></script>
+                {{ /if }}
             </article>
         </div>
         <div class="toc-wrapper hidden">

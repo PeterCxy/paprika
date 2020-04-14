@@ -559,3 +559,15 @@ blockquote {
 .hljs:hover {
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
+
+/* Extra customization for Itte, the comment system */
+#itte-thread::before {
+    content: "";
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: calc(50% - 90px);
+    width: 180px;
+    height: 2px;
+    background-color: #e91e63;
+}
