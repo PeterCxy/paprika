@@ -516,6 +516,7 @@ blockquote {
     border-radius: 4px;
     scrollbar-color: #e91e63 #00000000;
     scrollbar-width: thin;
+    margin-right: 10px; /* Fix non-centric positioning on mobile */
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
