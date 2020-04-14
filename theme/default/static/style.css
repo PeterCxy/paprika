@@ -18,8 +18,21 @@ html {
     background-repeat: repeat;
 }
 
+/* Animate page appearing */
 .page-wrapper {
-    opacity: 1 !important;
+    animation-name: appear;
+    animation-duration: 0.5s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes appear {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
 
 .loading-progress {
