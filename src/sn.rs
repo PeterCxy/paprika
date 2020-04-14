@@ -96,6 +96,8 @@ struct CustomMetadata {
     // `unlist` takes precedence over this alias
     unlisted: Option<bool>,
     url: Option<String>,
+    // Same as Post.theme_config
+    theme_config: Option<serde_json::Value>,
     timestamp: Option<String> // Should be something `js_sys::Date::parse` could handle
 }
 
@@ -187,11 +189,13 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     let text = data.items[0].content.text.clone();
     let title = data.items[0].content.title.clone();
     let (custom_metadata, text) = parse_custom_metadata_from_content(text);
+    let theme_config = custom_metadata.as_ref().and_then(|it| it.theme_config.clone());
     let metadata = build_metadata(custom_metadata, &uuid, &title);
     let post = match blog::Post::find_by_uuid(&uuid).await {
         Ok(mut post) => {
             post.content = text;
             post.title = title;
+            post.theme_config = theme_config;
 
             // Update metadata if custom ones are present
             if metadata.has_custom_url {
@@ -210,7 +214,8 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
                 uuid: uuid,
                 title: title,
                 content: text,
-                timestamp: metadata.timestamp
+                timestamp: metadata.timestamp,
+                theme_config: theme_config
             }
         }
     };

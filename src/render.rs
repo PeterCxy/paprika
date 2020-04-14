@@ -94,7 +94,8 @@ struct PostContext {
     title: String,
     url: String,
     timestamp: u64,
-    content: String
+    content: String,
+    theme_config: Option<serde_json::Value>
 }
 
 lazy_static! {
@@ -228,7 +229,8 @@ pub async fn render_post(url: Url, post: blog::Post) -> MyResult<String> {
         title: post.title,
         url: post.url,
         timestamp: post.timestamp,
-        content: post_cache.content
+        content: post_cache.content,
+        theme_config: post.theme_config
     };
 
     HANDLEBARS.render("post.hbs", &context)

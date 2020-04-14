@@ -71,7 +71,9 @@ pub struct Post {
     // We keep the original content here
     // so that we could make changes to the Markdown parser
     // in the future; we won't be stuck with a parsed version
-    pub content: String
+    pub content: String,
+    // Some arbitrary data that could be used by the theme
+    pub theme_config: Option<serde_json::Value>
 }
 
 impl Post {
