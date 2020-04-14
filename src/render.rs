@@ -64,6 +64,8 @@ struct PageContext {
     // (e.g. the workers.dev domain, which is differnent
     //  from where you actually deploy the worker)
     base_url: String,
+    // The pathname part of the URL
+    pathname: String,
     // The current query string
     query: String
 }
@@ -148,6 +150,7 @@ fn build_handlebars() -> Handlebars<'static> {
 fn build_page_context(url: &Url) -> PageContext {
     PageContext {
         base_url: url.origin(),
+        pathname: url.pathname(),
         query: url.search()
     }
 }
