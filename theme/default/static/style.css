@@ -321,9 +321,16 @@ blockquote {
     padding-left: 5px;
 }
 
+.content > * {
+    /* For margin fixing */
+    /* This is fine because it only covers DIRECT childs of .content */
+    /* which should only contain things like images, code blocks and paragraphs */
+    margin-right: 10px;
+}
+
 .post img,
 .content img {
-    max-width: calc(100% - 10px);
+    max-width: 100%;
     object-fit: contain;
     cursor: pointer;
     transition: opacity 0.3s;
@@ -551,7 +558,6 @@ blockquote {
     border-radius: 4px;
     scrollbar-color: #e91e63 #00000000;
     scrollbar-width: thin;
-    margin-right: 10px; /* Fix non-centric positioning on mobile */
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
     transition: box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -570,4 +576,9 @@ blockquote {
     width: 180px;
     height: 2px;
     background-color: #e91e63;
+}
+
+#itte-thread {
+    /* The Itte CSS overrides the margin. We override it back :) */
+    margin-right: 10px !important;
 }
