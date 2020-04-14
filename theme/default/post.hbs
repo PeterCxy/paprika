@@ -10,7 +10,7 @@
                 {{{ content }}}
                 {{ #unless theme_config.no_itte }}
                 {{ #if blog.theme_config.itte_url }}
-                <section id="itte-thread" data-path="{{ page.base_url }}{{ page.pathname }}">
+                <section id="itte-thread" data-path="{{ #unless theme_config.itte_page_path }}{{ page.base_url }}{{ page.pathname }}{{ else }}{{ theme_config.itte_page_path }}{{ /unless }}">
                 </section>
                 <script src="{{ blog.theme_config.itte_url }}/itte.js"></script>
                 {{ /if }}
