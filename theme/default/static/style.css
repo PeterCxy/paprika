@@ -141,6 +141,11 @@ blockquote {
     margin-left: 0;
 }
 
+/* Footer -- Not needed on desktop */
+.footer {
+    display: none;
+}
+
 /* Sidebar */
 .sidebar {
     float: left;
@@ -226,7 +231,7 @@ blockquote {
     color: #f06292;
 }
 
-.sidebar .copyright {
+.copyright {
     font-size: 0.6em;
     color: rgb(200, 200, 200);
 }
@@ -450,6 +455,13 @@ blockquote {
 
     .with-divider.with-divider-center-mobile::after {
         margin-left: calc(50% - 20px) !important;
+    }
+
+    /* We need footer on mobile */
+    .footer {
+        display: block;
+        text-align: center;
+        width: 100%;
     }
 }
 
