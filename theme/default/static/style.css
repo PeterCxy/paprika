@@ -581,4 +581,7 @@ blockquote {
 #itte-thread {
     /* The Itte CSS overrides the margin. We override it back :) */
     margin-right: 10px !important;
+    /* Give itte-thread its own block context */
+    /* it contains float elements and clear, which interferes with sidebar */
+    overflow: hidden;
 }
