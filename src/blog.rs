@@ -256,6 +256,10 @@ impl PostContentCache {
         let regex_code = RegExp::new("<pre><code class=\"language-([^\"]*)\">", "ig");
         let js_html = js_html.replace_by_pattern(&regex_code, "<pre><code class=\"hljs\">");
 
+        // Transform all non-self-refernece links (does not start with "#") to target="_blank"
+        let regex_links = RegExp::new("<a href=\"((?!#)[^\"]*)\">", "ig");
+        let js_html = js_html.replace_by_pattern(&regex_links, "<a target=\"_blank\" href=\"$1\">");
+
         js_html.into()
     }
 
