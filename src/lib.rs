@@ -51,7 +51,6 @@ lazy_static! {
 
 fn build_routes() -> router::Router {
     let mut router = router::Router::new(&default_route);
-    router.add_route("/hello", &hello_world);
     router.add_route(blog::IMG_CACHE_PREFIX, &proxy_remote_image);
     sn::build_routes(&mut router);
     render::build_routes(&mut router);
@@ -182,13 +181,6 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
     }
 
     Err(Error::NotFound("This page is not available".into()))
-}
-
-async fn hello_world(_req: Request, _url: Url) -> MyResult<Response> {
-    Response::new_with_opt_str_and_init(
-        Some("Hello, world from Rust"),
-        ResponseInit::new().status(200)
-    ).internal_err()
 }
 
 #[wasm_bindgen]
