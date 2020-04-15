@@ -141,6 +141,10 @@ blockquote {
     margin-left: 0;
 }
 
+.footnote-definition p {
+    display: inline-block;
+}
+
 /* Footer -- Not needed on desktop */
 .footer {
     display: none;
