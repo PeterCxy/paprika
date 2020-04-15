@@ -156,11 +156,13 @@ table {
     overflow-x: scroll;
 }
 
-th, td {
+th,
+td {
     padding: 15px;
 }
 
-th:not(:first-child), td:not(:first-child) {
+th:not(:first-child),
+td:not(:first-child) {
     border-left: 1px solid #cccccc;
 }
 
