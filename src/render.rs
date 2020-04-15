@@ -67,7 +67,11 @@ struct PageContext {
     // The pathname part of the URL
     pathname: String,
     // The current query string
-    query: String
+    query: String,
+    // Summary of the current page
+    // regardless of its type
+    // For use in <meta> tags
+    description: String
 }
 
 #[derive(Serialize)]
@@ -148,11 +152,12 @@ fn build_handlebars() -> Handlebars<'static> {
     return hbs;
 }
 
-fn build_page_context(url: &Url) -> PageContext {
+fn build_page_context(url: &Url, description: String) -> PageContext {
     PageContext {
         base_url: url.origin(),
         pathname: url.pathname(),
-        query: url.search()
+        query: url.search(),
+        description
     }
 }
 
@@ -168,7 +173,7 @@ async fn _render_homepage(url: Url, tpl_name: &str) -> MyResult<String> {
         .map_err(|_| Error::BadRequest("Failed to parse query string".into()))?;
     let mut context = HomePageContext {
         blog: &ROOT_CONTEXT,
-        page: build_page_context(&url),
+        page: build_page_context(&url, ROOT_CONTEXT.description.into()),
         posts: vec![],
         prev: None,
         next: None
@@ -225,7 +230,7 @@ pub async fn render_post(url: Url, post: blog::Post) -> MyResult<String> {
     let post_cache = blog::PostContentCache::find_or_render(&post).await;
     let context = PostContext {
         blog: &ROOT_CONTEXT,
-        page: build_page_context(&url),
+        page: build_page_context(&url, strip_html_tags(&post_cache.summary)),
         title: post.title,
         url: post.url,
         timestamp: post.timestamp,

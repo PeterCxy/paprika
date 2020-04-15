@@ -172,3 +172,9 @@ fn default_maxage() -> u64 {
 }
 
 include!(concat!(env!("OUT_DIR"), "/build_timestamp.rs"));
+
+// Strip HTML tags from a string via JS binding
+pub fn strip_html_tags(s: &str) -> String {
+    let js_str: JsString = s.into();
+    js_str.replace_by_pattern(&RegExp::new("(<([^>]+)>)", "ig"), "").into()
+}
