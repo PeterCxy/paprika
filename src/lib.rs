@@ -167,7 +167,7 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
                         }.as_ref())
                 ).internal_err();
             } else {
-                // TODO: Actually render the page...
+                // Render the page
                 return Response::new_with_opt_str_and_init(
                     Some(&render::render_post(url, post).await?),
                     ResponseInit::new()
