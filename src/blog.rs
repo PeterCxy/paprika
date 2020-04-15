@@ -253,7 +253,7 @@ impl PostContentCache {
         // We don't match the end tag because it may span multiple lines
         // trying to match the end tag could result in accidentally matching
         // the end tag of another code block.
-        let regex_code = RegExp::new("<pre><code class=\"language-([^\"]*)\">", "ig");
+        let regex_code = RegExp::new("<pre><code( class=\"language-([^\"]*)\")?>", "ig");
         let js_html = js_html.replace_by_pattern(&regex_code, "<pre><code class=\"hljs\">");
 
         // Transform all non-self-refernece links (does not start with "#") to target="_blank"
