@@ -67,6 +67,7 @@ This is the main configuration file. The file will be compiled statically into t
   "plugin_identifier": "com.example.change.this.to.whatever.you.like",
   "posts_per_page": 5,
   "cache_maxage": 86400,
+  "preferred_url": "<your_url>",
   "redirects": {
     "/foo": "/bar",
     ...
@@ -89,6 +90,8 @@ This is the main configuration file. The file will be compiled statically into t
 `theme`: The name of the theme to use for your blog. Must be a subdirectory in `./theme`, and the default one is `default`. The selected theme will be compiled statically into the final `.wasm` binary. For more information on themes, continue reading this documentation.
 
 `plugin_identifier`: Used in Standard Notes to distinguish plugins.
+
+`preferred_url`: OPTIONAL. The preferred URL to use for the options "Open Post" and "Open Blog" (and for these options ONLY) in the Standard Notes Actions menu. Must NOT include a trailing `/`. This is useful if you publish your blog at `https://your_domain.com` but use a `workers.dev` domain for your Standard Notes plugin address.
 
 `redirects`: OPTIONAL. A map of URLs where the key will be mapped to the value by Paprika using 301 redirects. This is mainly useful for migration from another blogging platform.
 

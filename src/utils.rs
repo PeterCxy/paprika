@@ -164,7 +164,10 @@ pub struct Config {
     // UNLIKE in article headers
     pub redirects: Option<HashMap<String, String>>,
     // Additional remote resource proxy whitelist
-    pub extra_remote_proxy_whitelist: Option<Vec<String>>
+    pub extra_remote_proxy_whitelist: Option<Vec<String>>,
+    // Preferred URL of the blog for "Open Post" and "Open Blog" options in SN
+    // Must NOT include the trailing "/"
+    pub preferred_url: Option<String>
 }
 
 fn default_maxage() -> u64 {

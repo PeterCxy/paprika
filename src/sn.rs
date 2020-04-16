@@ -30,6 +30,7 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
     verify_secret!(url, params);
 
     let origin = url.origin();
+    let preferred_url = crate::CONFIG.preferred_url.clone().unwrap_or(origin.clone());
     let mut actions = vec![];
 
     // Show different options depending on whether the post already exists
@@ -63,16 +64,25 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
             content_types: vec![ContentType::Note],
             access_type: Some(AccessType::Decrypted)
         });
-        
+
         actions.push(Action {
             label: "Open Post".into(),
-            url: format!("{}/{}/", origin, post.unwrap().url),
+            url: format!("{}/{}/", preferred_url, post.unwrap().url),
             verb: Verb::Show,
             context: Context::Item,
             content_types: vec![ContentType::Note],
             access_type: None
         });
     }
+
+    actions.push(Action {
+        label: "Open Blog".into(),
+        url: preferred_url.clone(),
+        verb: Verb::Show,
+        context: Context::Item,
+        content_types: vec![ContentType::Note],
+        access_type: None
+    });
 
     let info = ActionsExtension {
         identifier: CONFIG.plugin_identifier.clone(),
