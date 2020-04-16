@@ -12,6 +12,8 @@ extern "C" {
     fn kv_get(key: &str) -> Promise;
     #[wasm_bindgen(js_namespace = PAPRIKA, js_name = "put")]
     fn kv_put_str(key: &str, value: &str) -> Promise;
+    #[wasm_bindgen(js_namespace = PAPRIKA, js_name = "delete")]
+    fn kv_delete(key: &str) -> Promise;
 }
 
 // Returns empty string ("") if the key is not found
@@ -37,4 +39,9 @@ pub async fn put_obj<T: Serialize>(key: &str, value: T) -> MyResult<()> {
 // For example, the user may want to manually edit the order in which posts appear
 pub async fn put_obj_pretty<T: Serialize>(key: &str, value: T) -> MyResult<()> {
     put_str(key, &serde_json::to_string_pretty(&value).internal_err()?).await
+}
+
+pub async fn delete(key: &str) -> MyResult<()> {
+    JsFuture::from(kv_delete(key)).await.internal_err()?;
+    Ok(())
 }

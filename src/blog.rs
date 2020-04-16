@@ -118,6 +118,10 @@ impl Post {
         Self::create_url_mapping(&self.url, &self.uuid).await?;
         store::put_obj(&Self::uuid_to_post_key(&self.uuid), self).await
     }
+
+    pub async fn delete_by_uuid(uuid: &str) -> MyResult<()> {
+        store::delete(&Self::uuid_to_post_key(uuid)).await
+    }
 }
 
 lazy_static! {
@@ -341,5 +345,9 @@ impl PostContentCache {
     // Save the current cache object to KV
     pub async fn save(&self) -> MyResult<()> {
         store::put_obj(&Self::uuid_to_cache_key(&self.uuid), self).await
+    }
+
+    pub async fn delete_by_uuid(uuid: &str) -> MyResult<()> {
+        store::delete(&Self::uuid_to_cache_key(uuid)).await
     }
 }

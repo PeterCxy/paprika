@@ -11,6 +11,7 @@ use web_sys::*;
 pub fn build_routes(router: &mut Router) {
     router.add_route("/actions", &get_actions);
     router.add_route("/post", &create_or_update_post);
+    router.add_route("/delete", &delete_post);
 }
 
 macro_rules! verify_secret {
@@ -55,13 +56,22 @@ async fn get_actions(_req: Request, url: Url) -> MyResult<Response> {
 
     if post_exists {
         actions.push(Action {
+            label: "Delete".into(),
+            url: format!("{}/delete?secret={}", origin, CONFIG.secret.clone()),
+            verb: Verb::Post,
+            context: Context::Item,
+            content_types: vec![ContentType::Note],
+            access_type: Some(AccessType::Decrypted)
+        });
+        
+        actions.push(Action {
             label: "Open Post".into(),
             url: format!("{}/{}/", origin, post.unwrap().url),
             verb: Verb::Show,
             context: Context::Item,
             content_types: vec![ContentType::Note],
             access_type: None
-        })
+        });
     }
 
     let info = ActionsExtension {
@@ -173,6 +183,19 @@ fn build_metadata(custom: Option<CustomMetadata>, uuid: &str, title: &str) -> Me
     ret
 }
 
+macro_rules! load_post_body {
+    ($data:ident, $req:expr) => {
+        let $data: ActionsPostData = serde_json::from_str(
+            &JsFuture::from($req.text().internal_err()?)
+                .await.internal_err()?
+                .as_string().ok_or(Error::BadRequest("Unable to parse POST body".into()))?
+            ).internal_err()?;
+        if $data.items.len() == 0 {
+            return Err(Error::BadRequest("At least one item must be supplied".into()));
+        }
+    };
+}
+
 async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     verify_secret!(url, params);
     if req.method() != "POST" {
@@ -180,14 +203,7 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     }
 
     // Load the information sent as POST body
-    let data: ActionsPostData = serde_json::from_str(
-        &JsFuture::from(req.text().internal_err()?)
-            .await.internal_err()?
-            .as_string().ok_or(Error::BadRequest("Unable to parse POST body".into()))?
-        ).internal_err()?;
-    if data.items.len() == 0 {
-        return Err(Error::BadRequest("At least one item must be supplied".into()));
-    }
+    load_post_body!(data, req);
 
     let uuid = data.items[0].uuid.clone();
     let text = data.items[0].content.text.clone();
@@ -238,6 +254,28 @@ async fn create_or_update_post(req: Request, url: Url) -> MyResult<Response> {
     blog::PostContentCache::find_or_render(&post).await;
     // Finally, save the post
     post.write_to_kv().await?;
+
+    Response::new_with_opt_str_and_init(
+        None,
+        ResponseInit::new()
+            .status(200)
+            .headers(headers!().add_cors().as_ref())
+    ).internal_err()
+}
+
+async fn delete_post(req: Request, url: Url) -> MyResult<Response> {
+    verify_secret!(url, params);
+    if req.method() != "POST" {
+        return Err(Error::BadRequest("Unsupported method".into()));
+    }
+
+    // Load the information sent as POST body
+    load_post_body!(data, req);
+
+    let uuid = &data.items[0].uuid;
+    blog::PostsList::load().await.remove_post(uuid).await?;
+    blog::Post::delete_by_uuid(uuid).await?;
+    blog::PostContentCache::delete_by_uuid(uuid).await?;
 
     Response::new_with_opt_str_and_init(
         None,
