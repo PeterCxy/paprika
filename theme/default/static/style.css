@@ -7,7 +7,6 @@ body {
     padding: 0;
     font-family: "Fira Sans", sans-serif;
     font-size: 18px;
-    text-shadow: 0 0 3px #dddddd;
     color: rgb(100, 100, 100);
     scrollbar-color: #e91e63 #00000000;
     scrollbar-width: thin;
@@ -457,12 +456,6 @@ tr:hover {
 
 @media screen and (max-width: 600px) {
     /* From this width, use mobile layout */
-    body,
-    html {
-        /* Performance of text-shadow on some mobile browsers is terrible */
-        text-shadow: none;
-    }
-
     .sidebar {
         position: relative;
         float: none;
