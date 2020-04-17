@@ -27,7 +27,7 @@ Deployment
 3. Run `wrangler publish` to upload to Cloudflare Workers
 4. Set up correct routes in Cloudflare control panel
 5. Add your own instance of Paprika to your Standard Notes as a plugin (instructions available below)
-6. Publish!
+6. Publish! (__Before publishing the first article, you will see an error when loading the home page__)
 
 Note that all configuration and themes will be included statically in the final binary. To modify any of them, you will need to re-run `wrangler publish` to rebuild the entire program.
 
