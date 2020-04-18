@@ -9,10 +9,10 @@ use crate::utils::*;
 use js_sys::{JsString, RegExp};
 use pulldown_cmark::*;
 use serde::{Serialize, Deserialize};
-use std::future::Future;
 use std::vec::Vec;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::closure::Closure;
+use wasm_bindgen_futures::spawn_local;
 
 // A list of the UUIDs of all published blog posts
 // This should be SORTED with the newest posts at lower indices (closer to 0)
@@ -215,16 +215,25 @@ impl PostContentCache {
         Some(cache)
     }
 
-    async fn transform_tag<'a>(tag: &mut Tag<'a>) {
+    fn transform_tag<'a>(tag: &mut Tag<'a>) {
         match tag {
             Tag::Image(_, url, _) => {
                 // Convert all external image to our cached URL
                 // to protect users and speed up page loading
                 let url_encoded: String = js_sys::encode_uri_component(url).into();
                 // Also write this URL to whitelist
+                // (just throw the task onto the JS ev loop,
+                //  because to make this function async we MUST need to
+                //  allocate Vec later in the render function)
                 // we don't care about if this write succeeds or not,
                 // because even if it breaks we still can recover by a simple refresh
-                let _ = store::put_str(&Self::url_to_cache_whitelist_key(url), "Y").await;
+                // and once it's written, it's permanent, so we expect the write
+                // to succeed as soon as the article is submitted
+                let url_cache_key = Self::url_to_cache_whitelist_key(url);
+                spawn_local(async move {
+                    let _ = store::put_str(&url_cache_key, "Y").await;
+                    ()
+                });
                 // Now we can overwrite the tag URL
                 *url = format!("{}{}", IMG_CACHE_PREFIX, url_encoded).into();
             },
@@ -233,17 +242,15 @@ impl PostContentCache {
     }
 
     fn transform_tags<'ev>(
-        parser: impl 'ev + Iterator<Item = Event<'ev>>
-    ) -> impl 'ev + Iterator<Item = impl Future<Output = Event<'ev>>> {
+        parser: impl Iterator<Item = Event<'ev>>
+    ) -> impl Iterator<Item = Event<'ev>> {
         parser.map(|mut ev| {
-            async {
-                match ev {
-                    Event::Start(ref mut tag) | Event::End(ref mut tag) => {
-                        Self::transform_tag(tag).await;
-                        ev
-                    },
-                    _ => ev
-                }
+            match ev {
+                Event::Start(ref mut tag) | Event::End(ref mut tag) => {
+                    Self::transform_tag(tag);
+                    ev
+                },
+                _ => ev
             }
         })
     }
@@ -329,17 +336,11 @@ impl PostContentCache {
         let parser = Parser::new_ext(&post.content, Options::all());
         // Apply code highlighting via Highlight.js
         let parser = Self::transform_code_block_highlight(parser);
-        // Apply async tag transform (resulting in an iterator of Futures)
+        // Apply tag transform
         let parser = Self::transform_tags(parser);
 
-        // Await on every Future in the queue to convert them back as Events
-        let mut events: Vec<Event> = vec![];
-        for ev in parser {
-            events.push(ev.await);
-        }
-
         let mut html_output = String::new();
-        html::push_html(&mut html_output, events.into_iter());
+        html::push_html(&mut html_output, parser);
         html_output = Self::transform_html(html_output);
         PostContentCache {
             uuid: post.uuid.clone(),
