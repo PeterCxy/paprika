@@ -3,11 +3,7 @@
 #[macro_use]
 extern crate handlebars;
 #[macro_use]
-extern crate include_dir;
-#[macro_use]
 extern crate lazy_static;
-#[macro_use]
-extern crate serde_json;
 
 #[macro_use]
 mod utils;

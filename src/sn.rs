@@ -295,6 +295,7 @@ async fn delete_post(req: Request, url: Url) -> MyResult<Response> {
     ).internal_err()
 }
 
+#[allow(dead_code)]
 pub enum Verb {
     Show,
     Post,
@@ -343,6 +344,7 @@ impl Serialize for ContentType {
     }
 }
 
+#[allow(dead_code)]
 pub enum AccessType {
     Decrypted,
     Encrypted
