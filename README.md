@@ -7,9 +7,7 @@ This requires Cloudflare Workers KV for storage and thus needs the paid Unlimite
 
 As a practice, Paprika was written in Rust and compiled to WebAssembly for execution on Cloudflare Workers, using `wasm-bindgen` to interact with the JS environment. One single JS dependency, `highlight.js`, was used because there's simply no good alternative from the Rust ecosystem. `webpack` was used for an automatic, cached loading experience of the WebAssembly module (the official template for WebAssembly by Cloudflare is terrible because it tries to re-instantiate the module every time a request comes in; using `webpack` fixed the issue because it's much smarter), along with the ability to load `highlight.js` modularly.
 
-__WARNING: I haven't even converted my own blog to Paprika yet.__
-
-__WARNING: This project is neither complete nor tested. Use at your own risk. Always keep backups.__
+__WARNING: This project is neither complete nor rigorously tested. Use at your own risk. Always keep backups.__
 
 Prerequisites
 ===
