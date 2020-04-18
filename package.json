@@ -11,7 +11,7 @@
     "url": "git+https://github.com/PeterCxy/paprika.git"
   },
   "author": "PeterCxy",
-  "license": "WTFPL",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/PeterCxy/paprika/issues"
   },
