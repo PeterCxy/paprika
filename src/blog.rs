@@ -248,7 +248,7 @@ impl PostContentCache {
         })
     }
 
-    fn transform_code_block_highlight<'iter, 'ev>(
+    fn transform_code_block_highlight<'ev>(
         parser: impl Iterator<Item = Event<'ev>>
     ) -> impl Iterator<Item = Event<'ev>> {
         let mut in_code_block = false;
