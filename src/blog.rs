@@ -9,6 +9,7 @@ use crate::utils::*;
 use js_sys::{JsString, RegExp};
 use pulldown_cmark::*;
 use serde::{Serialize, Deserialize};
+use std::future::Future;
 use std::vec::Vec;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::closure::Closure;
@@ -231,6 +232,22 @@ impl PostContentCache {
         }
     }
 
+    fn transform_tags<'ev>(
+        parser: impl 'ev + Iterator<Item = Event<'ev>>
+    ) -> impl 'ev + Iterator<Item = impl Future<Output = Event<'ev>>> {
+        parser.map(|mut ev| {
+            async {
+                match ev {
+                    Event::Start(ref mut tag) | Event::End(ref mut tag) => {
+                        Self::transform_tag(tag).await;
+                        ev
+                    },
+                    _ => ev
+                }
+            }
+        })
+    }
+
     fn transform_code_block_highlight<'iter, 'ev>(
         parser: impl Iterator<Item = Event<'ev>>
     ) -> impl Iterator<Item = Event<'ev>> {
@@ -309,26 +326,20 @@ impl PostContentCache {
     // Despite the signature, this function BLOCKS
     // async only comes from digesting via SubtleCrypto
     pub async fn render(post: &Post) -> PostContentCache {
-        // We have to first collect all events into a vector
-        // because we need to asynchronously transform the events
-        // which could not be done through mapping on iterators
-        let mut parser: Vec<Event> = Parser::new_ext(&post.content, Options::all()).collect();
-        for ev in parser.iter_mut() {
-            match ev {
-                Event::Start(tag) | Event::End(tag) => {
-                    Self::transform_tag(tag).await;
-                },
-                _ => ()
-            };
-        }
-
-        // Now some pure iterator operations
-        let parser = parser.into_iter();
+        let parser = Parser::new_ext(&post.content, Options::all());
         // Apply code highlighting via Highlight.js
         let parser = Self::transform_code_block_highlight(parser);
+        // Apply async tag transform (resulting in an iterator of Futures)
+        let parser = Self::transform_tags(parser);
+
+        // Await on every Future in the queue to convert them back as Events
+        let mut events: Vec<Event> = vec![];
+        for ev in parser {
+            events.push(ev.await);
+        }
 
         let mut html_output = String::new();
-        html::push_html(&mut html_output, parser);
+        html::push_html(&mut html_output, events.into_iter());
         html_output = Self::transform_html(html_output);
         PostContentCache {
             uuid: post.uuid.clone(),
