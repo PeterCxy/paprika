@@ -5,6 +5,7 @@ extern crate handlebars;
 #[macro_use]
 extern crate lazy_static;
 
+mod task;
 #[macro_use]
 mod utils;
 mod router;
@@ -179,8 +180,12 @@ async fn default_route(_req: Request, url: Url) -> MyResult<Response> {
     Err(Error::NotFound("This page is not available".into()))
 }
 
+task_local! {
+    pub static EVENT: ExtendableEvent;
+}
+
 #[wasm_bindgen]
-pub async fn handle_request_rs(req: Request) -> Response {
+pub async fn handle_request_rs(ev: ExtendableEvent, req: Request) -> Response {
     let url = Url::new(&req.url()).unwrap();
 
     if req.method() == "OPTIONS" {
@@ -191,7 +196,9 @@ pub async fn handle_request_rs(req: Request) -> Response {
         ).unwrap();
     }
 
-    let result = ROUTER.execute(req, url).await;
+    let result = EVENT.scope(ev, async move {
+        ROUTER.execute(req, url).await
+    }).await;
 
     match result {
         Ok(resp) => resp,

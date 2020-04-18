@@ -316,6 +316,7 @@ dependencies = [
  "js-sys",
  "lazy_static",
  "mime_guess",
+ "pin-project-lite",
  "pulldown-cmark",
  "serde",
  "serde_json",
@@ -368,6 +369,12 @@ dependencies = [
  "pest",
  "sha-1",
 ]
+
+[[package]]
+name = "pin-project-lite"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "237844750cfbb86f67afe27eee600dfbbcb6188d734139b534cbfbf4f96792ae"
 
 [[package]]
 name = "proc-macro-hack"

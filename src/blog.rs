@@ -10,9 +10,9 @@ use js_sys::{JsString, RegExp};
 use pulldown_cmark::*;
 use serde::{Serialize, Deserialize};
 use std::vec::Vec;
-use wasm_bindgen::JsCast;
+use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen::closure::Closure;
-use wasm_bindgen_futures::spawn_local;
+use wasm_bindgen_futures::future_to_promise;
 
 // A list of the UUIDs of all published blog posts
 // This should be SORTED with the newest posts at lower indices (closer to 0)
@@ -230,9 +230,11 @@ impl PostContentCache {
                 // and once it's written, it's permanent, so we expect the write
                 // to succeed as soon as the article is submitted
                 let url_cache_key = Self::url_to_cache_whitelist_key(url);
-                spawn_local(async move {
-                    let _ = store::put_str(&url_cache_key, "Y").await;
-                    ()
+                crate::EVENT.with(move |ev| {
+                    ev.wait_until(&future_to_promise(async move {
+                        let _ = store::put_str(&url_cache_key, "Y").await;
+                        Ok(JsValue::TRUE)
+                    })).unwrap();
                 });
                 // Now we can overwrite the tag URL
                 *url = format!("{}{}", IMG_CACHE_PREFIX, url_encoded).into();
