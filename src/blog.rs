@@ -231,6 +231,43 @@ impl PostContentCache {
         }
     }
 
+    fn transform_code_block_highlight<'iter, 'ev>(
+        parser: impl Iterator<Item = Event<'ev>>
+    ) -> impl Iterator<Item = Event<'ev>> {
+        let mut in_code_block = false;
+        let mut code_block_lang = None;
+        parser.map(move |ev| {
+            match &ev {
+                Event::Start(Tag::CodeBlock(block)) => {
+                    in_code_block = true;
+                    match block {
+                        CodeBlockKind::Fenced(lang) => code_block_lang = Some(lang.to_string()),
+                        CodeBlockKind::Indented => code_block_lang = None
+                    }
+                },
+                Event::End(Tag::CodeBlock(_)) => {
+                    in_code_block = false;
+                    code_block_lang = None;
+                },
+                Event::Text(text) => {
+                    if in_code_block {
+                        let highlighted = if let Some(ref code_block_lang) = code_block_lang {
+                            crate::hljs::highlight(&code_block_lang, text)
+                        } else {
+                            crate::hljs::highlight_auto(text)
+                        };
+
+                        return Event::Html(
+                            highlighted.into());
+                    }
+                }
+                _ => ()
+            }
+
+            ev
+        })
+    }
+
     // Do some HTML-level transformations to the compiled result
     // Because the Markdown parser doesn't always allow us to do
     // everything, like adding `id` attributes to tags
@@ -276,41 +313,22 @@ impl PostContentCache {
         // because we need to asynchronously transform the events
         // which could not be done through mapping on iterators
         let mut parser: Vec<Event> = Parser::new_ext(&post.content, Options::all()).collect();
-        let mut in_code_block = false;
-        let mut code_block_lang = "";
         for ev in parser.iter_mut() {
             match ev {
-                Event::Start(Tag::CodeBlock(block)) => {
-                    in_code_block = true;
-                    match block {
-                        CodeBlockKind::Fenced(lang) => code_block_lang = lang,
-                        CodeBlockKind::Indented => code_block_lang = ""
-                    }
-                },
-                Event::End(Tag::CodeBlock(_)) => {
-                    in_code_block = false;
-                    code_block_lang = "";
-                },
                 Event::Start(tag) | Event::End(tag) => {
                     Self::transform_tag(tag).await;
                 },
-                Event::Text(text) => {
-                    if in_code_block {
-                        let highlighted = if code_block_lang != "" {
-                            crate::hljs::highlight(code_block_lang, text)
-                        } else {
-                            crate::hljs::highlight_auto(text)
-                        };
-
-                        *ev = Event::Html(
-                            highlighted.into());
-                    }
-                }
                 _ => ()
             };
         }
+
+        // Now some pure iterator operations
+        let parser = parser.into_iter();
+        // Apply code highlighting via Highlight.js
+        let parser = Self::transform_code_block_highlight(parser);
+
         let mut html_output = String::new();
-        html::push_html(&mut html_output, parser.into_iter());
+        html::push_html(&mut html_output, parser);
         html_output = Self::transform_html(html_output);
         PostContentCache {
             uuid: post.uuid.clone(),
