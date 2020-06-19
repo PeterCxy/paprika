@@ -1,6 +1,8 @@
 Paprika
 ---
 
+__The GitHub repository is only a mirror. See <https://cgit.typeblog.net/paprika/> for the main repository.__
+
 Yet another blog system that runs on Cloudflare Workers, and integrates with [Standard Notes](https://standardnotes.org/) (a self-hosted note-taking software) for a great editing experience, while giving you more freedom than the Listed service provided by Standard Notes. Publish directly from your Standard Notes notebook with Paprika!
 
 This requires Cloudflare Workers KV for storage and thus needs the paid Unlimited plan to work. However, it is possible to swap out the storage, if you would like to fiddle with the code, and use something like S3 to use it 100% free on Workers (barring S3 costs).
@@ -10,6 +12,14 @@ As a practice, Paprika was written in Rust and compiled to WebAssembly for execu
 __WARNING: This project is neither complete nor rigorously tested. Use at your own risk. Always keep backups.__
 
 __WARNING: Paprika depends on Cloudflare KV, which is EVENTUALLY CONSISTENT. Please do not try to update posts simultaneously from multiple clients, otherwise inconsistencies may happen, though I don't think simultaneous updates from multiple clients is anything close to a normal use-case for a personal blog.__
+
+Contact
+===
+
+For issues and patches, please use the following contact methods
+
+- Google Groups: petercxy-projects@googlegroups.com ([web](https://groups.google.com/forum/?oldui=1#!forum/petercxy-projects))
+- Matrix Chat Room: #petercxy-projects:neo.angry.im
 
 Prerequisites
 ===
