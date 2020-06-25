@@ -71,7 +71,7 @@ fn generate_hljs_loader(config: &serde_json::Value) {
     }).collect::<String>();
 
     let js_code = format!(
-        "const hljs = require(\\\"highlight.js/lib/highlight.js\\\");\n{}module.exports = hljs;",
+        "const hljs = require(\\\"highlight.js/lib/core\\\");\n{}module.exports = hljs;",
         highlight_lang);
     let rs_code = fs::read_to_string("./src/hljs_tpl.rs").unwrap();
     let rs_code = format!("#[wasm_bindgen(inline_js = \"{}\")]\n{}", js_code, rs_code);
